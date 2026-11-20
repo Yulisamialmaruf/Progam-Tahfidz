@@ -1,0 +1,6 @@
+{
+  "name": "Program Tahfidz RA & MI Unggulan Al Ma'ruf",
+  "description": "Aplikasi manajemen materi tahfidz, pencatatan harian Senin–Kamis, evaluasi mingguan Jum'at & bulanan, serta rekapitulasi laporan dan rapor resmi berjenjang RA & MI Unggulan Al Ma'ruf selama 2 semester.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

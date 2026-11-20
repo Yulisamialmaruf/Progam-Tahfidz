@@ -1,0 +1,1126 @@
+import type {
+  AppDatabase,
+  AudioTrack,
+  DailyLog,
+  Jenjang,
+  MateriItem,
+  MonthlyEvaluation,
+  PredikatNilai,
+  Semester,
+  StatusCapaian,
+  Student,
+  Teacher,
+  WeeklyEvaluation,
+} from '../src/types.ts';
+
+export function computePredikat(nilai: number): PredikatNilai {
+  if (nilai >= 90) return 'Mumtaz (A)';
+  if (nilai >= 80) return 'Jayyid Jiddan (B)';
+  if (nilai >= 70) return 'Jayyid (C)';
+  return 'Perlu Bimbingan (D)';
+}
+
+const JUZ_30_CURRICULUM: Array<{
+  judul: string;
+  subJudul: string;
+  jenjang: Jenjang;
+  semester: Semester;
+  teksArab: string;
+  arti: string;
+  catatanTajwid: string;
+  audioUrl: string;
+  audioLabel: string;
+  audioPlaylist?: AudioTrack[];
+}> = [
+  // RA A
+  {
+    judul: 'Surah Al-Fatihah',
+    subJudul: 'QS. 1 · 7 Ayat (Pembuka)',
+    jenjang: 'RA A',
+    semester: 1,
+    teksArab:
+      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾ الرَّحْمَٰنِ الرَّحِيمِ ﴿٣﴾ مَالِكِ يَوْمِ الدِّينِ ﴿٤﴾ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٥﴾ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٦﴾ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ﴿٧﴾',
+    arti:
+      '(1) Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang. (2) Segala puji bagi Allah, Tuhan semesta alam. (3) Maha Pemurah lagi Maha Penyayang. (4) Yang menguasai di Hari Pembalasan. (5) Hanya Engkaulah yang kami sembah, dan hanya kepada Engkaulah kami meminta pertolongan. (6) Tunjukilah kami jalan yang lurus, (7) (yaitu) Jalan orang-orang yang telah Engkau beri nikmat kepada mereka; bukan (jalan) mereka yang dimurkai dan bukan (pula jalan) mereka yang sesat.',
+    catatanTajwid: 'Perhatikan panjang mad lazim mutsaqqal kilmi (6 harakat) pada الضَّاۤلِّيْنَ dan makhraj huruf Ha serta Ain.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3',
+    audioLabel: 'Murottal QS. Al-Fatihah · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah An-Nas',
+    subJudul: 'QS. 114 · 6 Ayat',
+    jenjang: 'RA A',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَٰهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾",
+    arti:
+      "(1) Katakanlah: \"Aku berlindung kepada Tuhan (yang memelihara dan menguasai) manusia. (2) Raja manusia. (3) Sembahan manusia. (4) Dari kejahatan (bisikan) syaitan yang biasa bersembunyi, (5) yang membisikkan (kejahatan) ke dalam dada manusia, (6) dari (golongan) jin dan manusia.",
+    catatanTajwid: 'Dengungkan ghunnah musyaddadah pada setiap huruf Nun bertasydid (النَّاسِ).',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/114.mp3',
+    audioLabel: 'Murottal QS. An-Nas · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Falaq',
+    subJudul: 'QS. 113 · 5 Ayat',
+    jenjang: 'RA A',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾",
+    arti:
+      "(1) Katakanlah: \"Aku berlindung kepada Tuhan Yang Menguasai subuh, (2) dari kejahatan makhluk-Nya, (3) dan dari kejahatan malam apabila telah gelap gulita, (4) dan dari kejahatan wanita-wanita tukang sihir yang menghembus pada buhul-buhul, (5) dan dari kejahatan pendengki bila ia dengki\".",
+    catatanTajwid: 'Pantulkan qalqalah kubra pada huruf Qaf, Ba, dan Dal di akhir ayat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/113.mp3',
+    audioLabel: 'Murottal QS. Al-Falaq · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Ikhlas',
+    subJudul: 'QS. 112 · 4 Ayat',
+    jenjang: 'RA A',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ ﴿٤﴾",
+    arti:
+      "(1) Katakanlah: \"Dialah Allah, Yang Maha Esa. (2) Allah adalah Tuhan yang bergantung kepada-Nya segala sesuatu. (3) Dia tiada beranak dan tidak pula diperanakkan, (4) dan tidak ada seorangpun yang setara dengan Dia\".",
+    catatanTajwid: 'Jaga pantulan qalqalah kubra pada huruf Dal di setiap akhir ayat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/112.mp3',
+    audioLabel: 'Murottal QS. Al-Ikhlas · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Lahab',
+    subJudul: 'QS. 111 · 5 Ayat',
+    jenjang: 'RA A',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nتَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ ﴿١﴾ مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ ﴿٢﴾ سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ ﴿٣﴾ وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ ﴿٤﴾ فِي جِيدِهَا حَبْلٌ مِّن مَّسَدٍ ﴿٥﴾",
+    arti:
+      "(1) Binasalah kedua tangan Abu Lahab dan sesungguhnya dia akan binasa. (2) Tidaklah berfaedah kepadanya harta bendanya dan apa yang ia usahakan. (3) Kelak dia akan masuk ke dalam api yang bergejolak. (4) Dan (begitu pula) istrinya, pembawa kayu bakar. (5) Yang di lehernya ada tali dari sabut.",
+    catatanTajwid: 'Perhatikan idgham bighunnah pada لَهَبٍ وَّتَبَّ serta qalqalah pada Ba dan Dal.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/111.mp3',
+    audioLabel: 'Murottal QS. Al-Lahab · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah An-Nashr',
+    subJudul: 'QS. 110 · 3 Ayat',
+    jenjang: 'RA A',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ ﴿١﴾ وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا ﴿٢﴾ فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا ﴿٣﴾",
+    arti:
+      "(1) Apabila telah datang pertolongan Allah dan kemenangan, (2) dan kamu lihat manusia masuk agama Allah dengan berbondong-bondong, (3) maka bertasbihlah dengan memuji Tuhanmu dan mohonlah ampun kepada-Nya. Sesungguhnya Dia adalah Maha Penerima taubat.",
+    catatanTajwid: 'Panjangkan mad wajib muttashil pada جَآءَ sepanjang 4–5 harakat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/110.mp3',
+    audioLabel: 'Murottal QS. An-Nashr · Syekh Mishary Alafasy',
+  },
+  // RA B
+  {
+    judul: 'Surah Al-Kafirun',
+    subJudul: 'QS. 109 · 6 Ayat',
+    jenjang: 'RA B',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ يَا أَيُّهَا الْكَافِرُونَ ﴿١﴾ لَا أَعْبُدُ مَا تَعْبُدُونَ ﴿٢﴾ وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ ﴿٣﴾ وَلَا أَنَا عَابِدٌ مَّا عَبَدتُّمْ ﴿٤﴾ وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ ﴿٥﴾ لَكُمْ دِينُكُمْ وَلِيَ دِينِ ﴿٦﴾",
+    arti:
+      "(1) Katakanlah: \"Hai orang-orang kafir, (2) Aku tidak akan menyembah apa yang kamu sembah. (3) Dan kamu bukan penyembah Tuhan yang aku sembah. (4) Dan aku tidak pernah menjadi penyembah apa yang kamu sembah, (5) dan kamu tidak pernah (pula) menjadi penyembah Tuhan yang aku sembah. (6) Untukmu agamamu, dan untukkulah, agamaku\".",
+    catatanTajwid: 'Perhatikan mad jaiz munfashil dan ikhfa haqiqi pada اَنْتُمْ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/109.mp3',
+    audioLabel: 'Murottal QS. Al-Kafirun · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Kautsar',
+    subJudul: 'QS. 108 · 3 Ayat',
+    jenjang: 'RA B',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ ﴿١﴾ فَصَلِّ لِرَبِّكَ وَانْحَرْ ﴿٢﴾ إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ ﴿٣﴾",
+    arti:
+      "(1) Sesungguhnya Kami telah memberikan kepadamu nikmat yang banyak. (2) Maka dirikanlah shalat karena Tuhanmu; dan berkorbanlah. (3) Sesungguhnya orang-orang yang membenci kamu dialah yang terputus.",
+    catatanTajwid: 'Jelaskan izhar halqi pada وَانْحَرْ dan qalqalah sughra pada الْاَبْتَرُ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/108.mp3',
+    audioLabel: 'Murottal QS. Al-Kautsar · Syekh Mishary Alafasy',
+  },
+  {
+    judul: "Surah Al-Ma'un",
+    subJudul: 'QS. 107 · 7 Ayat',
+    jenjang: 'RA B',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nأَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ ﴿١﴾ فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ ﴿٢﴾ وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ ﴿٣﴾ فَوَيْلٌ لِّلْمُصَلِّينَ ﴿٤﴾ الَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ ﴿٥﴾ الَّذِينَ هُمْ يُرَاءُونَ ﴿٦﴾ وَيَمْنَعُونَ الْمَاعُونَ ﴿٧﴾",
+    arti:
+      "(1) Tahukah kamu (orang) yang mendustakan agama? (2) Itulah orang yang menghardik anak yatim, (3) dan tidak menganjurkan memberi makan orang miskin. (4) Maka kecelakaanlah bagi orang-orang yang shalat, (5) (yaitu) orang-orang yang lalai dari shalatnya, (6) orang-orang yang berbuat riya, (7) dan enggan (menolong dengan) barang berguna.",
+    catatanTajwid: 'Bedakan huruf Dzāl (ذ) dan Zāy (ز) dengan makhraj ujung lidah yang tepat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/107.mp3',
+    audioLabel: "Murottal QS. Al-Ma'un · Syekh Mishary Alafasy",
+  },
+  {
+    judul: 'Surah Quraisy',
+    subJudul: 'QS. 106 · 4 Ayat',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nلِإِيلَافِ قُرَيْشٍ ﴿١﴾ إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ ﴿٢﴾ فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ ﴿٣﴾ الَّذِي أَطْعَمَهُم مِّن جُوعٍ وَآمَنَهُم مِّنْ خَوْفٍ ﴿٤﴾",
+    arti:
+      "(1) Karena kebiasaan orang-orang Quraisy, (2) (yaitu) kebiasaan mereka bepergian pada musim dingin dan musim panas. (3) Maka hendaklah mereka menyembah Tuhan Pemilik rumah ini (Ka'bah). (4) Yang telah memberi makanan kepada mereka untuk menghilangkan lapar dan mengamankan mereka dari ketakutan.",
+    catatanTajwid: 'Lembutkan bacaan mad lin pada قُرَيْشٍ dan وَالصَّيْفِ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/106.mp3',
+    audioLabel: 'Murottal QS. Quraisy · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Fil',
+    subJudul: 'QS. 105 · 5 Ayat',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nأَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ ﴿١﴾ أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ ﴿٢﴾ وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ ﴿٣﴾ تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ ﴿٤﴾ فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ ﴿٥﴾",
+    arti:
+      "(1) Apakah kamu tidak memperhatikan bagaimana Tuhanmu telah bertindak terhadap tentara bergajah? (2) Bukankah Dia telah menjadikan tipu daya mereka (untuk menghancurkan Ka'bah) itu sia-sia? (3) dan Dia mengirimkan kapada mereka burung yang berbondong-bondong, (4) yang melempari mereka dengan batu (berasal) dari tanah yang terbakar, (5) lalu Dia menjadikan mereka seperti daun-daun yang dimakan (ulat).",
+    catatanTajwid: 'Perhatikan izhar syafawi pada اَلَمْ تَرَ dan tebal huruf Dhad pada تَضْلِيْلٍ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/105.mp3',
+    audioLabel: 'Murottal QS. Al-Fil · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Humazah',
+    subJudul: 'QS. 104 · 9 Ayat',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ ﴿١﴾ الَّذِي جَمَعَ مَالًا وَعَدَّدَهُ ﴿٢﴾ يَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ ﴿٣﴾ كَلَّا ۖ لَيُنبَذَنَّ فِي الْحُطَمَةِ ﴿٤﴾ وَمَا أَدْرَاكَ مَا الْحُطَمَةُ ﴿٥﴾ نَارُ اللَّهِ الْمُوقَدَةُ ﴿٦﴾ الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ ﴿٧﴾ إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ ﴿٨﴾ فِي عَمَدٍ مُّمَدَّدَةٍ ﴿٩﴾",
+    arti:
+      "(1) Kecelakaanlah bagi setiap pengumpat lagi pencela, (2) yang mengumpulkan harta dan menghitung-hitung, (3) dia mengira bahwa hartanya itu dapat mengkekalkannya, (4) sekali-kali tidak! Sesungguhnya dia benar-benar akan dilemparkan ke dalam Huthamah. (5) Dan tahukah kamu apa Huthamah itu? (6) (yaitu) api (yang disediakan) Allah yang dinyalakan, (7) yang (membakar) sampai ke hati. (8) Sesungguhnya api itu ditutup rapat atas mereka, (9) (sedang mereka itu) diikat pada tiang-tiang yang panjang.",
+    catatanTajwid: 'Terapkan idgham bilaghunnah pada وَيْلٌ لِّكُلِّ dan iqlab pada لَيُنْۢبَذَنَّ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/104.mp3',
+    audioLabel: 'Murottal QS. Al-Humazah · Syekh Mishary Alafasy',
+  },
+  {
+    judul: "Surah Al-'Asr",
+    subJudul: 'QS. 103 · 3 Ayat',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالْعَصْرِ ﴿١﴾ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ ﴿٢﴾ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ ﴿٣﴾",
+    arti:
+      "(1) Demi masa. (2) Sesungguhnya manusia itu benar-benar dalam kerugian, (3) kecuali orang-orang yang beriman dan mengerjakan amal saleh dan nasehat menasehati supaya mentaati kebenaran dan nasehat menasehati supaya menetapi kesabaran.",
+    catatanTajwid: 'Bunyikan huruf Shad (ص) secara tebal dan tepat saat waqaf pada وَالْعَصْرِ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/103.mp3',
+    audioLabel: "Murottal QS. Al-'Asr · Syekh Mishary Alafasy",
+  },
+  // MI Kelas 1
+  {
+    judul: 'Surah At-Takatsur',
+    subJudul: 'QS. 102 · 8 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nأَلْهَاكُمُ التَّكَاثُرُ ﴿١﴾ حَتَّىٰ زُرْتُمُ الْمَقَابِرَ ﴿٢﴾ كَلَّا سَوْفَ تَعْلَمُونَ ﴿٣﴾ ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ ﴿٤﴾ كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ ﴿٥﴾ لَتَرَوُنَّ الْجَحِيمَ ﴿٦﴾ ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ ﴿٧﴾ ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ ﴿٨﴾",
+    arti:
+      "(1) Bermegah-megahan telah melalaikan kamu, (2) sampai kamu masuk ke dalam kubur. (3) Janganlah begitu, kelak kamu akan mengetahui (akibat perbuatanmu itu), (4) dan janganlah begitu, kelak kamu akan mengetahui. (5) Janganlah begitu, jika kamu mengetahui dengan pengetahuan yang yakin, (6) niscaya kamu benar-benar akan melihat neraka Jahiim, (7) dan sesungguhnya kamu benar-benar akan melihatnya dengan 'ainul yaqin. (8) kemudian kamu pasti akan ditanyai pada hari itu tentang kenikmatan (yang kamu megah-megahkan di dunia itu).",
+    catatanTajwid: 'Jelaskan makhraj huruf Tsa (ث) dengan ujung lidah dan gigi seri atas.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/102.mp3',
+    audioLabel: 'Murottal QS. At-Takatsur · Syekh Mishary Alafasy',
+  },
+  {
+    judul: "Surah Al-Qari'ah",
+    subJudul: 'QS. 101 · 11 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْقَارِعَةُ ﴿١﴾ مَا الْقَارِعَةُ ﴿٢﴾ وَمَا أَدْرَاكَ مَا الْقَارِعَةُ ﴿٣﴾ يَوْمَ يَكُونُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوثِ ﴿٤﴾ وَتَكُونُ الْجِبَالُ كَالْعِهْنِ الْمَنفُوشِ ﴿٥﴾ فَأَمَّا مَن ثَقُلَتْ مَوَازِينُهُ ﴿٦﴾ فَهُوَ فِي عِيشَةٍ رَّاضِيَةٍ ﴿٧﴾ وَأَمَّا مَنْ خَفَّتْ مَوَازِينُهُ ﴿٨﴾ فَأُمُّهُ هَاوِيَةٌ ﴿٩﴾ وَمَا أَدْرَاكَ مَا هِيَهْ ﴿١٠﴾ نَارٌ حَامِيَةٌ ﴿١١﴾",
+    arti:
+      "(1) Hari Kiamat, (2) apakah hari Kiamat itu? (3) Tahukah kamu apakah hari Kiamat itu? (4) Pada hari itu manusia adalah seperti anai-anai yang bertebaran, (5) dan gunung-gunung adalah seperti bulu yang dihambur-hamburkan. (6) Dan adapun orang-orang yang berat timbangan (kebaikan)nya, (7) maka dia berada dalam kehidupan yang memuaskan. (8) Dan adapun orang-orang yang ringan timbangan (kebaikan)nya, (9) maka tempat kembalinya adalah neraka Hawiyah. (10) Tahukah kamu apakah neraka Hawiyah itu? (11) (Yaitu) api yang sangat panas.",
+    catatanTajwid: 'Waqaf pada Ta Marbuthah di akhir ayat dibaca sebagai Ha sukun yang halus.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/101.mp3',
+    audioLabel: "Murottal QS. Al-Qari'ah · Syekh Mishary Alafasy",
+  },
+  {
+    judul: "Surah Al-'Adiyat",
+    subJudul: 'QS. 100 · 11 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالْعَادِيَاتِ ضَبْحًا ﴿١﴾ فَالْمُورِيَاتِ قَدْحًا ﴿٢﴾ فَالْمُغِيرَاتِ صُبْحًا ﴿٣﴾ فَأَثَرْنَ بِهِ نَقْعًا ﴿٤﴾ فَوَسَطْنَ بِهِ جَمْعًا ﴿٥﴾ إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ ﴿٦﴾ وَإِنَّهُ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ ﴿٧﴾ وَإِنَّهُ لِحُبِّ الْخَيْرِ لَشَدِيدٌ ﴿٨﴾ ۞ أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِي الْقُبُورِ ﴿٩﴾ وَحُصِّلَ مَا فِي الصُّدُورِ ﴿١٠﴾ إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ ﴿١١﴾",
+    arti:
+      "(1) Demi kuda perang yang berlari kencang dengan terengah-engah, (2) dan kuda yang mencetuskan api dengan pukulan (kuku kakinya), (3) dan kuda yang menyerang dengan tiba-tiba di waktu pagi, (4) maka ia menerbangkan debu, (5) dan menyerbu ke tengah-tengah kumpulan musuh, (6) sesungguhnya manusia itu sangat ingkar, tidak berterima kasih kepada Tuhannya, (7) dan sesungguhnya manusia itu menyaksikan (sendiri) keingkarannya, (8) dan sesungguhnya dia sangat bakhil karena cintanya kepada harta. (9) Maka apakah dia tidak mengetahui apabila dibangkitkan apa yang ada di dalam kubur, (10) dan dilahirkan apa yang ada di dalam dada, (11) sesungguhnya Tuhan mereka pada hari itu Maha Mengetahui keadaan mereka.",
+    catatanTajwid: 'Perhatikan qalqalah sughra pada ضَبْحًا, قَدْحًا, dan صُبْحًا serta mad iwadh di akhir ayat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/100.mp3',
+    audioLabel: "Murottal QS. Al-'Adiyat · Syekh Mishary Alafasy",
+  },
+  {
+    judul: 'Surah Az-Zalzalah',
+    subJudul: 'QS. 99 · 8 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا ﴿١﴾ وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا ﴿٢﴾ وَقَالَ الْإِنسَانُ مَا لَهَا ﴿٣﴾ يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا ﴿٤﴾ بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا ﴿٥﴾ يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ ﴿٦﴾ فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ ﴿٧﴾ وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ ﴿٨﴾",
+    arti:
+      "(1) Apabila bumi digoncangkan dengan goncangan (yang dahsyat), (2) dan bumi telah mengeluarkan beban-beban berat (yang dikandung)nya, (3) dan manusia bertanya: \"Mengapa bumi (menjadi begini)?\", (4) pada hari itu bumi menceritakan beritanya, (5) karena sesungguhnya Tuhanmu telah memerintahkan (yang sedemikian itu) kepadanya. (6) Pada hari itu manusia ke luar dari kuburnya dalam keadaan bermacam-macam, supaya diperlihatkan kepada mereka (balasan) pekerjaan mereka, (7) Barangsiapa yang mengerjakan kebaikan seberat dzarrahpun, niscaya dia akan melihat (balasan)nya. (8) Dan barangsiapa yang mengerjakan kejahatan sebesar dzarrahpun, niscaya dia akan melihat (balasan)nya pula.",
+    catatanTajwid: 'Perhatikan bacaan izhar syafawi dan panjang mad thabi’i pada akhir ayat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/99.mp3',
+    audioLabel: 'Murottal QS. Az-Zalzalah · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Bayyinah',
+    subJudul: 'QS. 98 · 8 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nلَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ ﴿١﴾ رَسُولٌ مِّنَ اللَّهِ يَتْلُو صُحُفًا مُّطَهَّرَةً ﴿٢﴾ فِيهَا كُتُبٌ قَيِّمَةٌ ﴿٣﴾ وَمَا تَفَرَّقَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَتْهُمُ الْبَيِّنَةُ ﴿٤﴾ وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ حُنَفَاءَ وَيُقِيمُوا الصَّلَاةَ وَيُؤْتُوا الزَّكَاةَ ۚ وَذَٰلِكَ دِينُ الْقَيِّمَةِ ﴿٥﴾ إِنَّ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ فِي نَارِ جَهَنَّمَ خَالِدِينَ فِيهَا ۚ أُولَٰئِكَ هُمْ شَرُّ الْبَرِيَّةِ ﴿٦﴾ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ أُولَٰئِكَ هُمْ خَيْرُ الْبَرِيَّةِ ﴿٧﴾ جَزَاؤُهُمْ عِندَ رَبِّهِمْ جَنَّاتُ عَدْنٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا ۖ رَّضِيَ اللَّهُ عَنْهُمْ وَرَضُوا عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِيَ رَبَّهُ ﴿٨﴾",
+    arti:
+      "(1) Orang-orang kafir yakni ahli Kitab dan orang-orang musyrik (mengatakan bahwa mereka) tidak akan meninggalkan (agamanya) sebelum datang kepada mereka bukti yang nyata, (2) (yaitu) seorang Rasul dari Allah (Muhammad) yang membacakan lembaran-lembaran yang disucikan (Al Quran), (3) di dalamnya terdapat (isi) Kitab-kitab yang lurus. (4) Dan tidaklah berpecah belah orang-orang yang didatangkan Al Kitab (kepada mereka) melainkan sesudah datang kepada mereka bukti yang nyata. (5) Padahal mereka tidak disuruh kecuali supaya menyembah Allah dengan memurnikan ketaatan kepada-Nya dalam (menjalankan) agama yang lurus, dan supaya mereka mendirikan shalat dan menunaikan zakat; dan yang demikian itulah agama yang lurus. (6) Sesungguhnya orang-orang yang kafir yakni ahli Kitab dan orang-orang yang musyrik (akan masuk) ke neraka Jahannam; mereka kekal di dalamnya. Mereka itu adalah seburuk-buruk makhluk. (7) Sesungguhnya orang-orang yang beriman dan mengerjakan amal saleh, mereka itu adalah sebaik-baik makhluk. (8) Balasan mereka di sisi Tuhan mereka ialah surga 'Adn yang mengalir di bawahnya sungai-sungai; mereka kekal di dalamnya selama-lamanya. Allah ridha terhadap mereka dan merekapun ridha kepada-Nya. Yang demikian itu adalah (balasan) bagi orang yang takut kepada Tuhannya.",
+    catatanTajwid: 'Terapkan ikhfa haqiqi pada مُنْفَكِّيْنَ dan jaga kestabilan tasydid.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/98.mp3',
+    audioLabel: 'Murottal QS. Al-Bayyinah · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Qadr',
+    subJudul: 'QS. 97 · 5 Ayat',
+    jenjang: 'MI Kelas 1',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ ﴿١﴾ وَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ ﴿٢﴾ لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ ﴿٣﴾ تَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ ﴿٤﴾ سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ ﴿٥﴾",
+    arti:
+      "(1) Sesungguhnya Kami telah menurunkannya (Al Quran) pada malam kemuliaan. (2) Dan tahukah kamu apakah malam kemuliaan itu? (3) Malam kemuliaan itu lebih baik dari seribu bulan. (4) Pada malam itu turun malaikat-malaikat dan malaikat Jibril dengan izin Tuhannya untuk mengatur segala urusan. (5) Malam itu (penuh) kesejahteraan sampai terbit fajar.",
+    catatanTajwid: 'Terapkan idgham bighunnah pada خَيْرٌ مِّنْ serta qalqalah sughra pada الْقَدْرِ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/97.mp3',
+    audioLabel: 'Murottal QS. Al-Qadr · Syekh Mishary Alafasy',
+  },
+  // MI Kelas 2
+  {
+    judul: "Surah Al-'Alaq",
+    subJudul: 'QS. 96 · 19 Ayat',
+    jenjang: 'MI Kelas 2',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nاقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ ﴿١﴾ خَلَقَ الْإِنسَانَ مِنْ عَلَقٍ ﴿٢﴾ اقْرَأْ وَرَبُّكَ الْأَكْرَمُ ﴿٣﴾ الَّذِي عَلَّمَ بِالْقَلَمِ ﴿٤﴾ عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ ﴿٥﴾ كَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ ﴿٦﴾ أَن رَّآهُ اسْتَغْنَىٰ ﴿٧﴾ إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ ﴿٨﴾ أَرَأَيْتَ الَّذِي يَنْهَىٰ ﴿٩﴾ عَبْدًا إِذَا صَلَّىٰ ﴿١٠﴾ أَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ ﴿١١﴾ أَوْ أَمَرَ بِالتَّقْوَىٰ ﴿١٢﴾ أَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ ﴿١٣﴾ أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ ﴿١٤﴾ كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ ﴿١٥﴾ نَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ ﴿١٦﴾ فَلْيَدْعُ نَادِيَهُ ﴿١٧﴾ سَنَدْعُ الزَّبَانِيَةَ ﴿١٨﴾ كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب ۩ ﴿١٩﴾",
+    arti:
+      "(1) Bacalah dengan (menyebut) nama Tuhanmu Yang menciptakan, (2) Dia telah menciptakan manusia dari segumpal darah. (3) Bacalah, dan Tuhanmulah Yang Maha Pemurah, (4) Yang mengajar (manusia) dengan perantaran kalam, (5) Dia mengajar kepada manusia apa yang tidak diketahuinya. (6) Ketahuilah! Sesungguhnya manusia benar-benar melampaui batas, (7) karena dia melihat dirinya serba cukup. (8) Sesungguhnya hanya kepada Tuhanmulah kembali(mu). (9) Bagaimana pendapatmu tentang orang yang melarang, (10) seorang hamba ketika mengerjakan shalat, (11) bagaimana pendapatmu jika orang yang melarang itu berada di atas kebenaran, (12) atau dia menyuruh bertakwa (kepada Allah)? (13) Bagaimana pendapatmu jika orang yang melarang itu mendustakan dan berpaling? (14) Tidaklah dia mengetahui bahwa sesungguhnya Allah melihat segala perbuatannya? (15) Ketahuilah, sungguh jika dia tidak berhenti (berbuat demikian) niscaya Kami tarik ubun-ubunnya, (16) (yaitu) ubun-ubun orang yang mendustakan lagi durhaka. (17) Maka biarlah dia memanggil golongannya (untuk menolongnya), (18) kelak Kami akan memanggil malaikat Zabaniyah, (19) sekali-kali jangan, janganlah kamu patuh kepadanya; dan sujudlah dan dekatkanlah (dirimu kepada Tuhan).",
+    catatanTajwid: 'Jelaskan hamzah sukun pada اِقْرَأْ dan qalqalah pada huruf Qaf.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/96.mp3',
+    audioLabel: "Murottal QS. Al-'Alaq · Syekh Mishary Alafasy",
+  },
+  {
+    judul: 'Surah At-Tin',
+    subJudul: 'QS. 95 · 8 Ayat',
+    jenjang: 'MI Kelas 2',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالتِّينِ وَالزَّيْتُونِ ﴿١﴾ وَطُورِ سِينِينَ ﴿٢﴾ وَهَٰذَا الْبَلَدِ الْأَمِينِ ﴿٣﴾ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ ﴿٤﴾ ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ ﴿٥﴾ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ ﴿٦﴾ فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ ﴿٧﴾ أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ ﴿٨﴾",
+    arti:
+      "(1) Demi (buah) Tin dan (buah) Zaitun, (2) dan demi bukit Sinai, (3) dan demi kota (Mekah) ini yang aman, (4) sesungguhnya Kami telah menciptakan manusia dalam bentuk yang sebaik-baiknya. (5) Kemudian Kami kembalikan dia ke tempat yang serendah-rendahnya (neraka), (6) kecuali orang-orang yang beriman dan mengerjakan amal saleh; maka bagi mereka pahala yang tiada putus-putusnya. (7) Maka apakah yang menyebabkan kamu mendustakan (hari) pembalasan sesudah (adanya keterangan-keterangan) itu? (8) Bukankah Allah Hakim yang seadil-adilnya?",
+    catatanTajwid: 'Bedakan suara huruf Tha (ط) tebal dengan Ta (ت) tipis.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/95.mp3',
+    audioLabel: 'Murottal QS. At-Tin · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Insyirah',
+    subJudul: 'QS. 94 · 8 Ayat',
+    jenjang: 'MI Kelas 2',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nأَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ﴿١﴾ وَوَضَعْنَا عَنكَ وِزْرَكَ ﴿٢﴾ الَّذِي أَنقَضَ ظَهْرَكَ ﴿٣﴾ وَرَفَعْنَا لَكَ ذِكْرَكَ ﴿٤﴾ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٥﴾ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٦﴾ فَإِذَا فَرَغْتَ فَانصَبْ ﴿٧﴾ وَإِلَىٰ رَبِّكَ فَارْغَب ﴿٨﴾",
+    arti:
+      "(1) Bukankah Kami telah melapangkan untukmu dadamu?, (2) dan Kami telah menghilangkan daripadamu bebanmu, (3) yang memberatkan punggungmu? (4) Dan Kami tinggikan bagimu sebutan (nama)mu, (5) Karena sesungguhnya sesudah kesulitan itu ada kemudahan, (6) sesungguhnya sesudah kesulitan itu ada kemudahan. (7) Maka apabila kamu telah selesai (dari sesuatu urusan), kerjakanlah dengan sungguh-sungguh (urusan) yang lain, (8) dan hanya kepada Tuhanmulah hendaknya kamu berharap.",
+    catatanTajwid: 'Tebalkan huruf Shad pada صَدْرَكَ dan ikhfa pada عَنْكَ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/94.mp3',
+    audioLabel: 'Murottal QS. Al-Insyirah · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Ad-Dhuha',
+    subJudul: 'QS. 93 · 11 Ayat',
+    jenjang: 'MI Kelas 2',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالضُّحَىٰ ﴿١﴾ وَاللَّيْلِ إِذَا سَجَىٰ ﴿٢﴾ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ ﴿٣﴾ وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ ﴿٤﴾ وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ ﴿٥﴾ أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ ﴿٦﴾ وَوَجَدَكَ ضَالًّا فَهَدَىٰ ﴿٧﴾ وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ ﴿٨﴾ فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ ﴿٩﴾ وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ ﴿١٠﴾ وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ ﴿١١﴾",
+    arti:
+      "(1) Demi waktu matahari sepenggalahan naik, (2) dan demi malam apabila telah sunyi (gelap), (3) Tuhanmu tiada meninggalkan kamu dan tiada (pula) benci kepadamu. (4) Dan sesungguhnya hari kemudian itu lebih baik bagimu daripada yang sekarang (permulaan). (5) Dan kelak Tuhanmu pasti memberikan karunia-Nya kepadamu, lalu (hati) kamu menjadi puas. (6) Bukankah Dia mendapatimu sebagai seorang yatim, lalu Dia melindungimu? (7) Dan Dia mendapatimu sebagai seorang yang bingung, lalu Dia memberikan petunjuk. (8) Dan Dia mendapatimu sebagai seorang yang kekurangan, lalu Dia memberikan kecukupan. (9) Sebab itu, terhadap anak yatim janganlah kamu berlaku sewenang-wenang. (10) Dan terhadap orang yang minta-minta, janganlah kamu menghardiknya. (11) Dan terhadap nikmat Tuhanmu, maka hendaklah kamu siarkan.",
+    catatanTajwid: 'Jaga konsistensi panjang mad thabi’i 2 harakat di setiap akhir ayat.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/93.mp3',
+    audioLabel: 'Murottal QS. Ad-Dhuha · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Lail',
+    subJudul: 'QS. 92 · 21 Ayat',
+    jenjang: 'MI Kelas 2',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَاللَّيْلِ إِذَا يَغْشَىٰ ﴿١﴾ وَالنَّهَارِ إِذَا تَجَلَّىٰ ﴿٢﴾ وَمَا خَلَقَ الذَّكَرَ وَالْأُنثَىٰ ﴿٣﴾ إِنَّ سَعْيَكُمْ لَشَتَّىٰ ﴿٤﴾ فَأَمَّا مَنْ أَعْطَىٰ وَاتَّقَىٰ ﴿٥﴾ وَصَدَّقَ بِالْحُسْنَىٰ ﴿٦﴾ فَسَنُيَسِّرُهُ لِلْيُسْرَىٰ ﴿٧﴾ وَأَمَّا مَن بَخِلَ وَاسْتَغْنَىٰ ﴿٨﴾ وَكَذَّبَ بِالْحُسْنَىٰ ﴿٩﴾ فَسَنُيَسِّرُهُ لِلْعُسْرَىٰ ﴿١٠﴾ وَمَا يُغْنِي عَنْهُ مَالُهُ إِذَا تَرَدَّىٰ ﴿١١﴾ إِنَّ عَلَيْنَا لَلْهُدَىٰ ﴿١٢﴾ وَإِنَّ لَنَا لَلْآخِرَةَ وَالْأُولَىٰ ﴿١٣﴾ فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ ﴿١٤﴾ لَا يَصْلَاهَا إِلَّا الْأَشْقَى ﴿١٥﴾ الَّذِي كَذَّبَ وَتَوَلَّىٰ ﴿١٦﴾ وَسَيُجَنَّبُهَا الْأَتْقَى ﴿١٧﴾ الَّذِي يُؤْتِي مَالَهُ يَتَزَكَّىٰ ﴿١٨﴾ وَمَا لِأَحَدٍ عِندَهُ مِن نِّعْمَةٍ تُجْزَىٰ ﴿١٩﴾ إِلَّا ابْتِغَاءَ وَجْهِ رَبِّهِ الْأَعْلَىٰ ﴿٢٠﴾ وَلَسَوْفَ يَرْضَىٰ ﴿٢١﴾",
+    arti:
+      "(1) Demi malam apabila menutupi (cahaya siang), (2) dan siang apabila terang benderang, (3) dan penciptaan laki-laki dan perempuan, (4) sesungguhnya usaha kamu memang berbeda-beda. (5) Adapun orang yang memberikan (hartanya di jalan Allah) dan bertakwa, (6) dan membenarkan adanya pahala yang terbaik (surga), (7) maka Kami kelak akan menyiapkan baginya jalan yang mudah. (8) Dan adapun orang-orang yang bakhil dan merasa dirinya cukup, (9) serta mendustakan pahala terbaik, (10) maka kelak Kami akan menyiapkan baginya (jalan) yang sukar. (11) Dan hartanya tidak bermanfaat baginya apabila ia telah binasa. (12) Sesungguhnya kewajiban Kamilah memberi petunjuk, (13) dan sesungguhnya kepunyaan Kamilah akhirat dan dunia. (14) Maka, kami memperingatkan kamu dengan neraka yang menyala-nyala. (15) Tidak ada yang masuk ke dalamnya kecuali orang yang paling celaka, (16) yang mendustakan (kebenaran) dan berpaling (dari iman). (17) Dan kelak akan dijauhkan orang yang paling takwa dari neraka itu, (18) yang menafkahkan hartanya (di jalan Allah) untuk membersihkannya, (19) padahal tidak ada seseorangpun memberikan suatu nikmat kepadanya yang harus dibalasnya, (20) tetapi (dia memberikan itu semata-mata) karena mencari keridhaan Tuhannya yang Maha Tinggi. (21) Dan kelak dia benar-benar mendapat kepuasan.",
+    catatanTajwid: 'Terapkan ghunnah pada وَالنَّهَارِ dan ikhfa haqiqi pada الْاُنْثٰى.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/92.mp3',
+    audioLabel: 'Murottal QS. Al-Lail · Syekh Mishary Alafasy',
+  },
+  // MI Kelas 3
+  {
+    judul: 'Surah Asy-Syams',
+    subJudul: 'QS. 91 · 15 Ayat',
+    jenjang: 'MI Kelas 3',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالشَّمْسِ وَضُحَاهَا ﴿١﴾ وَالْقَمَرِ إِذَا تَلَاهَا ﴿٢﴾ وَالنَّهَارِ إِذَا جَلَّاهَا ﴿٣﴾ وَاللَّيْلِ إِذَا يَغْشَاهَا ﴿٤﴾ وَالسَّمَاءِ وَمَا بَنَاهَا ﴿٥﴾ وَالْأَرْضِ وَمَا طَحَاهَا ﴿٦﴾ وَنَفْسٍ وَمَا سَوَّاهَا ﴿٧﴾ فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا ﴿٨﴾ قَدْ أَفْلَحَ مَن زَكَّاهَا ﴿٩﴾ وَقَدْ خَابَ مَن دَسَّاهَا ﴿١٠﴾ كَذَّبَتْ ثَمُودُ بِطَغْوَاهَا ﴿١١﴾ إِذِ انبَعَثَ أَشْقَاهَا ﴿١٢﴾ فَقَالَ لَهُمْ رَسُولُ اللَّهِ نَاقَةَ اللَّهِ وَسُقْيَاهَا ﴿١٣﴾ فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنبِهِمْ فَسَوَّاهَا ﴿١٤﴾ وَلَا يَخَافُ عُقْبَاهَا ﴿١٥﴾",
+    arti:
+      "(1) Demi matahari dan cahayanya di pagi hari, (2) dan bulan apabila mengiringinya, (3) dan siang apabila menampakkannya, (4) dan malam apabila menutupinya, (5) dan langit serta pembinaannya, (6) dan bumi serta penghamparannya, (7) dan jiwa serta penyempurnaannya (ciptaannya), (8) maka Allah mengilhamkan kepada jiwa itu (jalan) kefasikan dan ketakwaannya. (9) sesungguhnya beruntunglah orang yang mensucikan jiwa itu, (10) dan sesungguhnya merugilah orang yang mengotorinya. (11) (Kaum) Tsamud telah mendustakan (rasulnya) karena mereka melampaui batas, (12) ketika bangkit orang yang paling celaka di antara mereka, (13) lalu Rasul Allah (Saleh) berkata kepada mereka: (\"Biarkanlah) unta betina Allah dan minumannya\". (14) Lalu mereka mendustakannya dan menyembelih unta itu, maka Tuhan mereka membinasakan mereka disebabkan dosa mereka, lalu Allah menyama-ratakan mereka (dengan tanah), (15) dan Allah tidak takut terhadap akibat tindakan-Nya itu.",
+    catatanTajwid: 'Perhatikan sifat tafasyi huruf Syin pada وَالشَّمْسِ dan kelancaran akhiran هَا.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/91.mp3',
+    audioLabel: 'Murottal QS. Asy-Syams · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Balad',
+    subJudul: 'QS. 90 · 20 Ayat',
+    jenjang: 'MI Kelas 3',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nلَا أُقْسِمُ بِهَٰذَا الْبَلَدِ ﴿١﴾ وَأَنتَ حِلٌّ بِهَٰذَا الْبَلَدِ ﴿٢﴾ وَوَالِدٍ وَمَا وَلَدَ ﴿٣﴾ لَقَدْ خَلَقْنَا الْإِنسَانَ فِي كَبَدٍ ﴿٤﴾ أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌ ﴿٥﴾ يَقُولُ أَهْلَكْتُ مَالًا لُّبَدًا ﴿٦﴾ أَيَحْسَبُ أَن لَّمْ يَرَهُ أَحَدٌ ﴿٧﴾ أَلَمْ نَجْعَل لَّهُ عَيْنَيْنِ ﴿٨﴾ وَلِسَانًا وَشَفَتَيْنِ ﴿٩﴾ وَهَدَيْنَاهُ النَّجْدَيْنِ ﴿١٠﴾ فَلَا اقْتَحَمَ الْعَقَبَةَ ﴿١١﴾ وَمَا أَدْرَاكَ مَا الْعَقَبَةُ ﴿١٢﴾ فَكُّ رَقَبَةٍ ﴿١٣﴾ أَوْ إِطْعَامٌ فِي يَوْمٍ ذِي مَسْغَبَةٍ ﴿١٤﴾ يَتِيمًا ذَا مَقْرَبَةٍ ﴿١٥﴾ أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ ﴿١٦﴾ ثُمَّ كَانَ مِنَ الَّذِينَ آمَنُوا وَتَوَاصَوْا بِالصَّبْرِ وَتَوَاصَوْا بِالْمَرْحَمَةِ ﴿١٧﴾ أُولَٰئِكَ أَصْحَابُ الْمَيْمَنَةِ ﴿١٨﴾ وَالَّذِينَ كَفَرُوا بِآيَاتِنَا هُمْ أَصْحَابُ الْمَشْأَمَةِ ﴿١٩﴾ عَلَيْهِمْ نَارٌ مُّؤْصَدَةٌ ﴿٢٠﴾",
+    arti:
+      "(1) Aku benar-benar bersumpah dengan kota ini (Mekah), (2) dan kamu (Muhammad) bertempat di kota Mekah ini, (3) dan demi bapak dan anaknya. (4) Sesungguhnya Kami telah menciptakan manusia berada dalam susah payah. (5) Apakah manusia itu menyangka bahwa sekali-kali tiada seorangpun yang berkuasa atasnya? (6) Dan mengatakan: \"Aku telah menghabiskan harta yang banyak\". (7) Apakah dia menyangka bahwa tiada seorangpun yang melihatnya? (8) Bukankah Kami telah memberikan kepadanya dua buah mata, (9) lidah dan dua buah bibir. (10) Dan Kami telah menunjukkan kepadanya dua jalan, (11) Tetapi dia tiada menempuh jalan yang mendaki lagi sukar. (12) Tahukah kamu apakah jalan yang mendaki lagi sukar itu? (13) (yaitu) melepaskan budak dari perbudakan, (14) atau memberi makan pada hari kelaparan, (15) (kepada) anak yatim yang ada hubungan kerabat, (16) atau kepada orang miskin yang sangat fakir. (17) Dan dia (tidak pula) termasuk orang-orang yang beriman dan saling berpesan untuk bersabar dan saling berpesan untuk berkasih sayang. (18) Mereka (orang-orang yang beriman dan saling berpesan itu) adalah golongan kanan. (19) Dan orang-orang yang kafir kepada ayat-ayat Kami, mereka itu adalah golongan kiri. (20) Mereka berada dalam neraka yang ditutup rapat.",
+    catatanTajwid: 'Terapkan hukum iqlab pada حِلٌّۢ بِهٰذَا serta qalqalah sughra pada اُقْسِمُ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/90.mp3',
+    audioLabel: 'Murottal QS. Al-Balad · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Fajr',
+    subJudul: 'QS. 89 · 30 Ayat',
+    jenjang: 'MI Kelas 3',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالْفَجْرِ ﴿١﴾ وَلَيَالٍ عَشْرٍ ﴿٢﴾ وَالشَّفْعِ وَالْوَتْرِ ﴿٣﴾ وَاللَّيْلِ إِذَا يَسْرِ ﴿٤﴾ هَلْ فِي ذَٰلِكَ قَسَمٌ لِّذِي حِجْرٍ ﴿٥﴾ أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِعَادٍ ﴿٦﴾ إِرَمَ ذَاتِ الْعِمَادِ ﴿٧﴾ الَّتِي لَمْ يُخْلَقْ مِثْلُهَا فِي الْبِلَادِ ﴿٨﴾ وَثَمُودَ الَّذِينَ جَابُوا الصَّخْرَ بِالْوَادِ ﴿٩﴾ وَفِرْعَوْنَ ذِي الْأَوْتَادِ ﴿١٠﴾ الَّذِينَ طَغَوْا فِي الْبِلَادِ ﴿١١﴾ فَأَكْثَرُوا فِيهَا الْفَسَادَ ﴿١٢﴾ فَصَبَّ عَلَيْهِمْ رَبُّكَ سَوْطَ عَذَابٍ ﴿١٣﴾ إِنَّ رَبَّكَ لَبِالْمِرْصَادِ ﴿١٤﴾ فَأَمَّا الْإِنسَانُ إِذَا مَا ابْتَلَاهُ رَبُّهُ فَأَكْرَمَهُ وَنَعَّمَهُ فَيَقُولُ رَبِّي أَكْرَمَنِ ﴿١٥﴾ وَأَمَّا إِذَا مَا ابْتَلَاهُ فَقَدَرَ عَلَيْهِ رِزْقَهُ فَيَقُولُ رَبِّي أَهَانَنِ ﴿١٦﴾ كَلَّا ۖ بَل لَّا تُكْرِمُونَ الْيَتِيمَ ﴿١٧﴾ وَلَا تَحَاضُّونَ عَلَىٰ طَعَامِ الْمِسْكِينِ ﴿١٨﴾ وَتَأْكُلُونَ التُّرَاثَ أَكْلًا لَّمًّا ﴿١٩﴾ وَتُحِبُّونَ الْمَالَ حُبًّا جَمًّا ﴿٢٠﴾ كَلَّا إِذَا دُكَّتِ الْأَرْضُ دَكًّا دَكًّا ﴿٢١﴾ وَجَاءَ رَبُّكَ وَالْمَلَكُ صَفًّا صَفًّا ﴿٢٢﴾ وَجِيءَ يَوْمَئِذٍ بِجَهَنَّمَ ۚ يَوْمَئِذٍ يَتَذَكَّرُ الْإِنسَانُ وَأَنَّىٰ لَهُ الذِّكْرَىٰ ﴿٢٣﴾ يَقُولُ يَا لَيْتَنِي قَدَّمْتُ لِحَيَاتِي ﴿٢٤﴾ فَيَوْمَئِذٍ لَّا يُعَذِّبُ عَذَابَهُ أَحَدٌ ﴿٢٥﴾ وَلَا يُوثِقُ وَثَاقَهُ أَحَدٌ ﴿٢٦﴾ يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ﴿٢٧﴾ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً ﴿٢٨﴾ فَادْخُلِي فِي عِبَادِي ﴿٢٩﴾ وَادْخُلِي جَنَّتِي ﴿٣٠﴾",
+    arti:
+      "(1) Demi fajar, (2) dan malam yang sepuluh, (3) dan yang genap dan yang ganjil, (4) dan malam bila berlalu. (5) Pada yang demikian itu terdapat sumpah (yang dapat diterima) oleh orang-orang yang berakal. (6) Apakah kamu tidak memperhatikan bagaimana Tuhanmu berbuat terhadap kaum 'Aad? (7) (yaitu) penduduk Iram yang mempunyai bangunan-bangunan yang tinggi, (8) yang belum pernah dibangun (suatu kota) seperti itu, di negeri-negeri lain, (9) dan kaum Tsamud yang memotong batu-batu besar di lembah, (10) dan kaum Fir'aun yang mempunyai pasak-pasak (tentara yang banyak), (11) yang berbuat sewenang-wenang dalam negeri, (12) lalu mereka berbuat banyak kerusakan dalam negeri itu, (13) karena itu Tuhanmu menimpakan kepada mereka cemeti azab, (14) sesungguhnya Tuhanmu benar-benar mengawasi. (15) Adapun manusia apabila Tuhannya mengujinya lalu dia dimuliakan-Nya dan diberi-Nya kesenangan, maka dia akan berkata: \"Tuhanku telah memuliakanku\". (16) Adapun bila Tuhannya mengujinya lalu membatasi rezekinya maka dia berkata: \"Tuhanku menghinakanku\". (17) Sekali-kali tidak (demikian), sebenarnya kamu tidak memuliakan anak yatim, (18) dan kamu tidak saling mengajak memberi makan orang miskin, (19) dan kamu memakan harta pusaka dengan cara mencampur baurkan (yang halal dan yang bathil), (20) dan kamu mencintai harta benda dengan kecintaan yang berlebihan. (21) Jangan (berbuat demikian). Apabila bumi digoncangkan berturut-turut, (22) dan datanglah Tuhanmu; sedang malaikat berbaris-baris. (23) Dan pada hari itu diperlihatkan neraka Jahannam; dan pada hari itu ingatlah manusia, akan tetapi tidak berguna lagi mengingat itu baginya. (24) Dia mengatakan: \"Alangkah baiknya kiranya aku dahulu mengerjakan (amal saleh) untuk hidupku ini\". (25) Maka pada hari itu tiada seorangpun yang menyiksa seperti siksa-Nya. (26) dan tiada seorangpun yang mengikat seperti ikatan-Nya. (27) Hai jiwa yang tenang. (28) Kembalilah kepada Tuhanmu dengan hati yang puas lagi diridhai-Nya. (29) Maka masuklah ke dalam jama'ah hamba-hamba-Ku, (30) masuklah ke dalam surga-Ku.",
+    catatanTajwid: 'Jelaskan izhar halqi pada وَلَيَالٍ عَشْرٍ dan qalqalah saat waqaf pada وَالْفَجْرِ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/89.mp3',
+    audioLabel: 'Murottal QS. Al-Fajr · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Ghasyiyah',
+    subJudul: 'QS. 88 · 26 Ayat',
+    jenjang: 'MI Kelas 3',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nهَلْ أَتَاكَ حَدِيثُ الْغَاشِيَةِ ﴿١﴾ وُجُوهٌ يَوْمَئِذٍ خَاشِعَةٌ ﴿٢﴾ عَامِلَةٌ نَّاصِبَةٌ ﴿٣﴾ تَصْلَىٰ نَارًا حَامِيَةً ﴿٤﴾ تُسْقَىٰ مِنْ عَيْنٍ آنِيَةٍ ﴿٥﴾ لَّيْسَ لَهُمْ طَعَامٌ إِلَّا مِن ضَرِيعٍ ﴿٦﴾ لَّا يُسْمِنُ وَلَا يُغْنِي مِن جُوعٍ ﴿٧﴾ وُجُوهٌ يَوْمَئِذٍ نَّاعِمَةٌ ﴿٨﴾ لِّسَعْيِهَا رَاضِيَةٌ ﴿٩﴾ فِي جَنَّةٍ عَالِيَةٍ ﴿١٠﴾ لَّا تَسْمَعُ فِيهَا لَاغِيَةً ﴿١١﴾ فِيهَا عَيْنٌ جَارِيَةٌ ﴿١٢﴾ فِيهَا سُرُرٌ مَّرْفُوعَةٌ ﴿١٣﴾ وَأَكْوَابٌ مَّوْضُوعَةٌ ﴿١٤﴾ وَنَمَارِقُ مَصْفُوفَةٌ ﴿١٥﴾ وَزَرَابِيُّ مَبْثُوثَةٌ ﴿١٦﴾ أَفَلَا يَنظُرُونَ إِلَى الْإِبِلِ كَيْفَ خُلِقَتْ ﴿١٧﴾ وَإِلَى السَّمَاءِ كَيْفَ رُفِعَتْ ﴿١٨﴾ وَإِلَى الْجِبَالِ كَيْفَ نُصِبَتْ ﴿١٩﴾ وَإِلَى الْأَرْضِ كَيْفَ سُطِحَتْ ﴿٢٠﴾ فَذَكِّرْ إِنَّمَا أَنتَ مُذَكِّرٌ ﴿٢١﴾ لَّسْتَ عَلَيْهِم بِمُصَيْطِرٍ ﴿٢٢﴾ إِلَّا مَن تَوَلَّىٰ وَكَفَرَ ﴿٢٣﴾ فَيُعَذِّبُهُ اللَّهُ الْعَذَابَ الْأَكْبَرَ ﴿٢٤﴾ إِنَّ إِلَيْنَا إِيَابَهُمْ ﴿٢٥﴾ ثُمَّ إِنَّ عَلَيْنَا حِسَابَهُم ﴿٢٦﴾",
+    arti:
+      "(1) Sudah datangkah kepadamu berita (tentang) hari pembalasan? (2) Banyak muka pada hari itu tunduk terhina, (3) bekerja keras lagi kepayahan, (4) memasuki api yang sangat panas (neraka), (5) diberi minum (dengan air) dari sumber yang sangat panas. (6) Mereka tiada memperoleh makanan selain dari pohon yang berduri, (7) yang tidak menggemukkan dan tidak pula menghilangkan lapar. (8) Banyak muka pada hari itu berseri-seri, (9) merasa senang karena usahanya, (10) dalam surga yang tinggi, (11) tidak kamu dengar di dalamnya perkataan yang tidak berguna. (12) Di dalamnya ada mata air yang mengalir. (13) Di dalamnya ada takhta-takhta yang ditinggikan, (14) dan gelas-gelas yang terletak (di dekatnya), (15) dan bantal-bantal sandaran yang tersusun, (16) dan permadani-permadani yang terhampar. (17) Maka apakah mereka tidak memperhatikan unta bagaimana dia diciptakan, (18) Dan langit, bagaimana ia ditinggikan? (19) Dan gunung-gunung bagaimana ia ditegakkan? (20) Dan bumi bagaimana ia dihamparkan? (21) Maka berilah peringatan, karena sesungguhnya kamu hanyalah orang yang memberi peringatan. (22) Kamu bukanlah orang yang berkuasa atas mereka, (23) tetapi orang yang berpaling dan kafir, (24) maka Allah akan mengazabnya dengan azab yang besar. (25) Sesungguhnya kepada Kami-lah kembali mereka, (26) kemudian sesungguhnya kewajiban Kami-lah menghisab mereka.",
+    catatanTajwid: 'Perhatikan idgham bighunnah pada وُجُوْهٌ يَّوْمَىِٕذٍ dan izhar pada يَّوْمَىِٕذٍ خَاشِعَةٌ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/88.mp3',
+    audioLabel: 'Murottal QS. Al-Ghasyiyah · Syekh Mishary Alafasy',
+  },
+  // MI Kelas 4
+  {
+    judul: "Surah Al-A'la",
+    subJudul: 'QS. 87 · 19 Ayat',
+    jenjang: 'MI Kelas 4',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nسَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى ﴿١﴾ الَّذِي خَلَقَ فَسَوَّىٰ ﴿٢﴾ وَالَّذِي قَدَّرَ فَهَدَىٰ ﴿٣﴾ وَالَّذِي أَخْرَجَ الْمَرْعَىٰ ﴿٤﴾ فَجَعَلَهُ غُثَاءً أَحْوَىٰ ﴿٥﴾ سَنُقْرِئُكَ فَلَا تَنسَىٰ ﴿٦﴾ إِلَّا مَا شَاءَ اللَّهُ ۚ إِنَّهُ يَعْلَمُ الْجَهْرَ وَمَا يَخْفَىٰ ﴿٧﴾ وَنُيَسِّرُكَ لِلْيُسْرَىٰ ﴿٨﴾ فَذَكِّرْ إِن نَّفَعَتِ الذِّكْرَىٰ ﴿٩﴾ سَيَذَّكَّرُ مَن يَخْشَىٰ ﴿١٠﴾ وَيَتَجَنَّبُهَا الْأَشْقَى ﴿١١﴾ الَّذِي يَصْلَى النَّارَ الْكُبْرَىٰ ﴿١٢﴾ ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ ﴿١٣﴾ قَدْ أَفْلَحَ مَن تَزَكَّىٰ ﴿١٤﴾ وَذَكَرَ اسْمَ رَبِّهِ فَصَلَّىٰ ﴿١٥﴾ بَلْ تُؤْثِرُونَ الْحَيَاةَ الدُّنْيَا ﴿١٦﴾ وَالْآخِرَةُ خَيْرٌ وَأَبْقَىٰ ﴿١٧﴾ إِنَّ هَٰذَا لَفِي الصُّحُفِ الْأُولَىٰ ﴿١٨﴾ صُحُفِ إِبْرَاهِيمَ وَمُوسَىٰ ﴿١٩﴾",
+    arti:
+      "(1) Sucikanlah nama Tuhanmu Yang Maha Tingi, (2) yang menciptakan, dan menyempurnakan (penciptaan-Nya), (3) dan yang menentukan kadar (masing-masing) dan memberi petunjuk, (4) dan yang menumbuhkan rumput-rumputan, (5) lalu dijadikan-Nya rumput-rumput itu kering kehitam-hitaman. (6) Kami akan membacakan (Al Quran) kepadamu (Muhammad) maka kamu tidak akan lupa, (7) kecuali kalau Allah menghendaki. Sesungguhnya Dia mengetahui yang terang dan yang tersembunyi. (8) dan Kami akan memberi kamu taufik ke jalan yang mudah, (9) oleh sebab itu berikanlah peringatan karena peringatan itu bermanfaat, (10) orang yang takut (kepada Allah) akan mendapat pelajaran, (11) dan orang-orang yang celaka (kafir) akan menjauhinya. (12) (Yaitu) orang yang akan memasuki api yang besar (neraka). (13) Kemudian dia tidak akan mati di dalamnya dan tidak (pula) hidup. (14) Sesungguhnya beruntunglah orang yang membersihkan diri (dengan beriman), (15) dan dia ingat nama Tuhannya, lalu dia sembahyang. (16) Tetapi kamu (orang-orang kafir) memilih kehidupan duniawi. (17) Sedang kehidupan akhirat adalah lebih baik dan lebih kekal. (18) Sesungguhnya ini benar-benar terdapat dalam kitab-kitab yang dahulu, (19) (yaitu) Kitab-kitab Ibrahim dan Musa",
+    catatanTajwid: 'Jaga kejelasan huruf Ain sukun pada الْاَعْلَى.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/87.mp3',
+    audioLabel: "Murottal QS. Al-A'la · Syekh Mishary Alafasy",
+  },
+  {
+    judul: 'Surah At-Tariq',
+    subJudul: 'QS. 86 · 17 Ayat',
+    jenjang: 'MI Kelas 4',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالسَّمَاءِ وَالطَّارِقِ ﴿١﴾ وَمَا أَدْرَاكَ مَا الطَّارِقُ ﴿٢﴾ النَّجْمُ الثَّاقِبُ ﴿٣﴾ إِن كُلُّ نَفْسٍ لَّمَّا عَلَيْهَا حَافِظٌ ﴿٤﴾ فَلْيَنظُرِ الْإِنسَانُ مِمَّ خُلِقَ ﴿٥﴾ خُلِقَ مِن مَّاءٍ دَافِقٍ ﴿٦﴾ يَخْرُجُ مِن بَيْنِ الصُّلْبِ وَالتَّرَائِبِ ﴿٧﴾ إِنَّهُ عَلَىٰ رَجْعِهِ لَقَادِرٌ ﴿٨﴾ يَوْمَ تُبْلَى السَّرَائِرُ ﴿٩﴾ فَمَا لَهُ مِن قُوَّةٍ وَلَا نَاصِرٍ ﴿١٠﴾ وَالسَّمَاءِ ذَاتِ الرَّجْعِ ﴿١١﴾ وَالْأَرْضِ ذَاتِ الصَّدْعِ ﴿١٢﴾ إِنَّهُ لَقَوْلٌ فَصْلٌ ﴿١٣﴾ وَمَا هُوَ بِالْهَزْلِ ﴿١٤﴾ إِنَّهُمْ يَكِيدُونَ كَيْدًا ﴿١٥﴾ وَأَكِيدُ كَيْدًا ﴿١٦﴾ فَمَهِّلِ الْكَافِرِينَ أَمْهِلْهُمْ رُوَيْدًا ﴿١٧﴾",
+    arti:
+      "(1) Demi langit dan yang datang pada malam hari, (2) tahukah kamu apakah yang datang pada malam hari itu? (3) (yaitu) bintang yang cahayanya menembus, (4) tidak ada suatu jiwapun (diri) melainkan ada penjaganya. (5) Maka hendaklah manusia memperhatikan dari apakah dia diciptakan? (6) Dia diciptakan dari air yang dipancarkan, (7) yang keluar dari antara tulang sulbi laki-laki dan tulang dada perempuan. (8) Sesungguhnya Allah benar-benar kuasa untuk mengembalikannya (hidup sesudah mati). (9) Pada hari dinampakkan segala rahasia, (10) maka sekali-kali tidak ada bagi manusia itu suatu kekuatanpun dan tidak (pula) seorang penolong. (11) Demi langit yang mengandung hujan (12) dan bumi yang mempunyai tumbuh-tumbuhan, (13) sesungguhnya Al Quran itu benar-benar firman yang memisahkan antara yang hak dan yang bathil. (14) dan sekali-kali bukanlah dia senda gurau. (15) Sesungguhnya orang kafir itu merencanakan tipu daya yang jahat dengan sebenar-benarnya. (16) Dan Akupun membuat rencana (pula) dengan sebenar-benarnya. (17) Karena itu beri tangguhlah orang-orang kafir itu yaitu beri tangguhlah mereka itu barang sebentar.",
+    catatanTajwid: 'Panjangkan mad wajib muttashil وَالسَّمَآءِ dan perhatikan qalqalah pada وَالطَّارِقِ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/86.mp3',
+    audioLabel: 'Murottal QS. At-Tariq · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Buruj',
+    subJudul: 'QS. 85 · 22 Ayat',
+    jenjang: 'MI Kelas 4',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالسَّمَاءِ ذَاتِ الْبُرُوجِ ﴿١﴾ وَالْيَوْمِ الْمَوْعُودِ ﴿٢﴾ وَشَاهِدٍ وَمَشْهُودٍ ﴿٣﴾ قُتِلَ أَصْحَابُ الْأُخْدُودِ ﴿٤﴾ النَّارِ ذَاتِ الْوَقُودِ ﴿٥﴾ إِذْ هُمْ عَلَيْهَا قُعُودٌ ﴿٦﴾ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ ﴿٧﴾ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَن يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ ﴿٨﴾ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ ۚ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ ﴿٩﴾ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ ﴿١٠﴾ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ ۚ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ ﴿١١﴾ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ ﴿١٢﴾ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ ﴿١٣﴾ وَهُوَ الْغَفُورُ الْوَدُودُ ﴿١٤﴾ ذُو الْعَرْشِ الْمَجِيدُ ﴿١٥﴾ فَعَّالٌ لِّمَا يُرِيدُ ﴿١٦﴾ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ ﴿١٧﴾ فِرْعَوْنَ وَثَمُودَ ﴿١٨﴾ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ ﴿١٩﴾ وَاللَّهُ مِن وَرَائِهِم مُّحِيطٌ ﴿٢٠﴾ بَلْ هُوَ قُرْآنٌ مَّجِيدٌ ﴿٢١﴾ فِي لَوْحٍ مَّحْفُوظٍ ﴿٢٢﴾",
+    arti:
+      "(1) Demi langit yang mempunyai gugusan bintang, (2) dan hari yang dijanjikan, (3) dan yang menyaksikan dan yang disaksikan. (4) Binasa dan terlaknatlah orang-orang yang membuat parit, (5) yang berapi (dinyalakan dengan) kayu bakar, (6) ketika mereka duduk di sekitarnya, (7) sedang mereka menyaksikan apa yang mereka perbuat terhadap orang-orang yang beriman. (8) Dan mereka tidak menyiksa orang-orang mukmin itu melainkan karena orang-orang mukmin itu beriman kepada Allah Yang Maha Perkasa lagi Maha Terpuji, (9) Yang mempunyai kerajaan langit dan bumi; dan Allah Maha Menyaksikan segala sesuatu. (10) Sesungguhnya orang-orang yang mendatangkan cobaan kepada orang-orang yang mukmin laki-laki dan perempuan kemudian mereka tidak bertaubat, maka bagi mereka azab Jahannam dan bagi mereka azab (neraka) yang membakar. (11) Sesungguhnya orang-orang yang beriman dan mengerjakan amal-amal yang saleh bagi mereka surga yang mengalir di bawahnya sungai-sungai; itulah keberuntungan yang besar. (12) Sesungguhnya azab Tuhanmu benar-benar keras. (13) Sesungguhnya Dialah Yang menciptakan (makhluk) dari permulaan dan menghidupkannya (kembali). (14) Dialah Yang Maha Pengampun lagi Maha Pengasih, (15) yang mempunyai 'Arsy, lagi Maha Mulia, (16) Maha Kuasa berbuat apa yang dikehendaki-Nya. (17) Sudahkah datang kepadamu berita kaum-kaum penentang, (18) (yaitu kaum) Fir'aun dan (kaum) Tsamud? (19) Sesungguhnya orang-orang kafir selalu mendustakan, (20) padahal Allah mengepung mereka dari belakang mereka. (21) Bahkan yang didustakan mereka itu ialah Al Quran yang mulia, (22) yang (tersimpan) dalam Lauh Mahfuzh.",
+    catatanTajwid: 'Perhatikan qalqalah kubra pada huruf Jim dan Dal saat waqaf.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/85.mp3',
+    audioLabel: 'Murottal QS. Al-Buruj · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Insyiqaq',
+    subJudul: 'QS. 84 · 25 Ayat',
+    jenjang: 'MI Kelas 4',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِذَا السَّمَاءُ انشَقَّتْ ﴿١﴾ وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ ﴿٢﴾ وَإِذَا الْأَرْضُ مُدَّتْ ﴿٣﴾ وَأَلْقَتْ مَا فِيهَا وَتَخَلَّتْ ﴿٤﴾ وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ ﴿٥﴾ يَا أَيُّهَا الْإِنسَانُ إِنَّكَ كَادِحٌ إِلَىٰ رَبِّكَ كَدْحًا فَمُلَاقِيهِ ﴿٦﴾ فَأَمَّا مَنْ أُوتِيَ كِتَابَهُ بِيَمِينِهِ ﴿٧﴾ فَسَوْفَ يُحَاسَبُ حِسَابًا يَسِيرًا ﴿٨﴾ وَيَنقَلِبُ إِلَىٰ أَهْلِهِ مَسْرُورًا ﴿٩﴾ وَأَمَّا مَنْ أُوتِيَ كِتَابَهُ وَرَاءَ ظَهْرِهِ ﴿١٠﴾ فَسَوْفَ يَدْعُو ثُبُورًا ﴿١١﴾ وَيَصْلَىٰ سَعِيرًا ﴿١٢﴾ إِنَّهُ كَانَ فِي أَهْلِهِ مَسْرُورًا ﴿١٣﴾ إِنَّهُ ظَنَّ أَن لَّن يَحُورَ ﴿١٤﴾ بَلَىٰ إِنَّ رَبَّهُ كَانَ بِهِ بَصِيرًا ﴿١٥﴾ فَلَا أُقْسِمُ بِالشَّفَقِ ﴿١٦﴾ وَاللَّيْلِ وَمَا وَسَقَ ﴿١٧﴾ وَالْقَمَرِ إِذَا اتَّسَقَ ﴿١٨﴾ لَتَرْكَبُنَّ طَبَقًا عَن طَبَقٍ ﴿١٩﴾ فَمَا لَهُمْ لَا يُؤْمِنُونَ ﴿٢٠﴾ وَإِذَا قُرِئَ عَلَيْهِمُ الْقُرْآنُ لَا يَسْجُدُونَ ۩ ﴿٢١﴾ بَلِ الَّذِينَ كَفَرُوا يُكَذِّبُونَ ﴿٢٢﴾ وَاللَّهُ أَعْلَمُ بِمَا يُوعُونَ ﴿٢٣﴾ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ ﴿٢٤﴾ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ ﴿٢٥﴾",
+    arti:
+      "(1) Apabila langit terbelah, (2) dan patuh kepada Tuhannya, dan sudah semestinya langit itu patuh, (3) dan apabila bumi diratakan, (4) dan dilemparkan apa yang ada di dalamnya dan menjadi kosong, (5) dan patuh kepada Tuhannya, dan sudah semestinya bumi itu patuh, (pada waktu itu manusia akan mengetahui akibat perbuatannya). (6) Hai manusia, sesungguhnya kamu telah bekerja dengan sungguh-sungguh menuju Tuhanmu, maka pasti kamu akan menemui-Nya. (7) Adapun orang yang diberikan kitabnya dari sebelah kanannya, (8) maka dia akan diperiksa dengan pemeriksaan yang mudah, (9) dan dia akan kembali kepada kaumnya (yang sama-sama beriman) dengan gembira. (10) Adapun orang-orang yang diberikan kitabnya dari belakang, (11) maka dia akan berteriak: \"Celakalah aku\". (12) Dan dia akan masuk ke dalam api yang menyala-nyala (neraka). (13) Sesungguhnya dia dahulu (di dunia) bergembira di kalangan kaumnya (yang sama-sama kafir). (14) Sesungguhnya dia menyangka bahwa dia sekali-kali tidak akan kembali (kepada Tuhannya). (15) (Bukan demikian), yang benar, sesungguhnya Tuhannya selalu melihatnya. (16) Maka sesungguhnya Aku bersumpah dengan cahaya merah di waktu senja, (17) dan dengan malam dan apa yang diselubunginya, (18) dan dengan bulan apabila jadi purnama, (19) sesungguhnya kamu melalui tingkat demi tingkat (dalam kehidupan), (20) Mengapa mereka tidak mau beriman? (21) dan apabila Al Quran dibacakan kepada mereka, mereka tidak bersujud, (22) bahkan orang-orang kafir itu mendustakan(nya). (23) Padahal Allah mengetahui apa yang mereka sembunyikan (dalam hati mereka). (24) Maka beri kabar gembiralah mereka dengan azab yang pedih, (25) tetapi orang-orang yang beriman dan beramal saleh, bagi mereka pahala yang tidak putus-putusnya.",
+    catatanTajwid: 'Terapkan ikhfa haqiqi pada انْشَقَّتْ serta sifat hams halus pada huruf Ta sukun.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/84.mp3',
+    audioLabel: 'Murottal QS. Al-Insyiqaq · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah Al-Mutaffifin',
+    subJudul: 'QS. 83 · 36 Ayat',
+    jenjang: 'MI Kelas 4',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَيْلٌ لِّلْمُطَفِّفِينَ ﴿١﴾ الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ ﴿٢﴾ وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ ﴿٣﴾ أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ ﴿٤﴾ لِيَوْمٍ عَظِيمٍ ﴿٥﴾ يَوْمَ يَقُومُ النَّاسُ لِرَبِّ الْعَالَمِينَ ﴿٦﴾ كَلَّا إِنَّ كِتَابَ الْفُجَّارِ لَفِي سِجِّينٍ ﴿٧﴾ وَمَا أَدْرَاكَ مَا سِجِّينٌ ﴿٨﴾ كِتَابٌ مَّرْقُومٌ ﴿٩﴾ وَيْلٌ يَوْمَئِذٍ لِّلْمُكَذِّبِينَ ﴿١٠﴾ الَّذِينَ يُكَذِّبُونَ بِيَوْمِ الدِّينِ ﴿١١﴾ وَمَا يُكَذِّبُ بِهِ إِلَّا كُلُّ مُعْتَدٍ أَثِيمٍ ﴿١٢﴾ إِذَا تُتْلَىٰ عَلَيْهِ آيَاتُنَا قَالَ أَسَاطِيرُ الْأَوَّلِينَ ﴿١٣﴾ كَلَّا ۖ بَلْ ۜ رَانَ عَلَىٰ قُلُوبِهِم مَّا كَانُوا يَكْسِبُونَ ﴿١٤﴾ كَلَّا إِنَّهُمْ عَن رَّبِّهِمْ يَوْمَئِذٍ لَّمَحْجُوبُونَ ﴿١٥﴾ ثُمَّ إِنَّهُمْ لَصَالُو الْجَحِيمِ ﴿١٦﴾ ثُمَّ يُقَالُ هَٰذَا الَّذِي كُنتُم بِهِ تُكَذِّبُونَ ﴿١٧﴾ كَلَّا إِنَّ كِتَابَ الْأَبْرَارِ لَفِي عِلِّيِّينَ ﴿١٨﴾ وَمَا أَدْرَاكَ مَا عِلِّيُّونَ ﴿١٩﴾ كِتَابٌ مَّرْقُومٌ ﴿٢٠﴾ يَشْهَدُهُ الْمُقَرَّبُونَ ﴿٢١﴾ إِنَّ الْأَبْرَارَ لَفِي نَعِيمٍ ﴿٢٢﴾ عَلَى الْأَرَائِكِ يَنظُرُونَ ﴿٢٣﴾ تَعْرِفُ فِي وُجُوهِهِمْ نَضْرَةَ النَّعِيمِ ﴿٢٤﴾ يُسْقَوْنَ مِن رَّحِيقٍ مَّخْتُومٍ ﴿٢٥﴾ خِتَامُهُ مِسْكٌ ۚ وَفِي ذَٰلِكَ فَلْيَتَنَافَسِ الْمُتَنَافِسُونَ ﴿٢٦﴾ وَمِزَاجُهُ مِن تَسْنِيمٍ ﴿٢٧﴾ عَيْنًا يَشْرَبُ بِهَا الْمُقَرَّبُونَ ﴿٢٨﴾ إِنَّ الَّذِينَ أَجْرَمُوا كَانُوا مِنَ الَّذِينَ آمَنُوا يَضْحَكُونَ ﴿٢٩﴾ وَإِذَا مَرُّوا بِهِمْ يَتَغَامَزُونَ ﴿٣٠﴾ وَإِذَا انقَلَبُوا إِلَىٰ أَهْلِهِمُ انقَلَبُوا فَكِهِينَ ﴿٣١﴾ وَإِذَا رَأَوْهُمْ قَالُوا إِنَّ هَٰؤُلَاءِ لَضَالُّونَ ﴿٣٢﴾ وَمَا أُرْسِلُوا عَلَيْهِمْ حَافِظِينَ ﴿٣٣﴾ فَالْيَوْمَ الَّذِينَ آمَنُوا مِنَ الْكُفَّارِ يَضْحَكُونَ ﴿٣٤﴾ عَلَى الْأَرَائِكِ يَنظُرُونَ ﴿٣٥﴾ هَلْ ثُوِّبَ الْكُفَّارُ مَا كَانُوا يَفْعَلُونَ ﴿٣٦﴾",
+    arti:
+      "(1) Kecelakaan besarlah bagi orang-orang yang curang (2) (yaitu) orang-orang yang apabila menerima takaran dari orang lain mereka minta dipenuhi, (3) dan apabila mereka menakar atau menimbang untuk orang lain, mereka mengurangi. (4) Tidaklah orang-orang itu menyangka, bahwa sesungguhnya mereka akan dibangkitkan, (5) pada suatu hari yang besar, (6) (yaitu) hari (ketika) manusia berdiri menghadap Tuhan semesta alam? (7) Sekali-kali jangan curang, karena sesungguhnya kitab orang yang durhaka tersimpan dalam sijjin. (8) Tahukah kamu apakah sijjin itu? (9) (Ialah) kitab yang bertulis. (10) Kecelakaan yang besarlah pada hari itu bagi orang-orang yang mendustakan, (11) (yaitu) orang-orang yang mendustakan hari pembalasan. (12) Dan tidak ada yang mendustakan hari pembalasan itu melainkan setiap orang yang melampaui batas lagi berdosa, (13) yang apabila dibacakan kepadanya ayat-ayat Kami, ia berkata: \"Itu adalah dongengan orang-orang yang dahulu\" (14) Sekali-kali tidak (demikian), sebenarnya apa yang selalu mereka usahakan itu menutupi hati mereka. (15) Sekali-kali tidak, sesungguhnya mereka pada hari itu benar-benar tertutup dari (rahmat) Tuhan mereka. (16) Kemudian, sesungguhnya mereka benar-benar masuk neraka. (17) Kemudian, dikatakan (kepada mereka): \"Inilah azab yang dahulu selalu kamu dustakan\". (18) Sekali-kali tidak, sesungguhnya kitab orang-orang yang berbakti itu (tersimpan) dalam 'Illiyyin. (19) Tahukah kamu apakah 'Illiyyin itu? (20) (Yaitu) kitab yang bertulis, (21) yang disaksikan oleh malaikat-malaikat yang didekatkan (kepada Allah). (22) Sesungguhnya orang yang berbakti itu benar-benar berada dalam kenikmatan yang besar (surga), (23) mereka (duduk) di atas dipan-dipan sambil memandang. (24) Kamu dapat mengetahui dari wajah mereka kesenangan mereka yang penuh kenikmatan. (25) Mereka diberi minum dari khamar murni yang dilak (tempatnya), (26) laknya adalah kesturi; dan untuk yang demikian itu hendaknya orang berlomba-lomba. (27) Dan campuran khamar murni itu adalah dari tasnim, (28) (yaitu) mata air yang minum daripadanya orang-orang yang didekatkan kepada Allah. (29) Sesungguhnya orang-orang yang berdosa, adalah mereka yang menertawakan orang-orang yang beriman. (30) Dan apabila orang-orang yang beriman lalu di hadapan mereka, mereka saling mengedip-ngedipkan matanya. (31) Dan apabila orang-orang yang berdosa itu kembali kepada kaumnya, mereka kembali dengan gembira. (32) Dan apabila mereka melihat orang-orang mukmin, mereka mengatakan: \"Sesungguhnya mereka itu benar-benar orang-orang yang sesat\", (33) padahal orang-orang yang berdosa itu tidak dikirim untuk penjaga bagi orang-orang mukmin. (34) Maka pada hari ini, orang-orang yang beriman menertawakan orang-orang kafir, (35) mereka (duduk) di atas dipan-dipan sambil memandang. (36) Sesungguhnya orang-orang kafir telah diberi ganjaran terhadap apa yang dahulu mereka kerjakan.",
+    catatanTajwid: 'Terapkan idgham bilaghunnah pada وَيْلٌ لِّلْمُطَفِّفِيْنَ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/83.mp3',
+    audioLabel: 'Murottal QS. Al-Mutaffifin · Syekh Mishary Alafasy',
+  },
+  // MI Kelas 5
+  {
+    judul: 'Surah Al-Infithar',
+    subJudul: 'QS. 82 · 19 Ayat',
+    jenjang: 'MI Kelas 5',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِذَا السَّمَاءُ انفَطَرَتْ ﴿١﴾ وَإِذَا الْكَوَاكِبُ انتَثَرَتْ ﴿٢﴾ وَإِذَا الْبِحَارُ فُجِّرَتْ ﴿٣﴾ وَإِذَا الْقُبُورُ بُعْثِرَتْ ﴿٤﴾ عَلِمَتْ نَفْسٌ مَّا قَدَّمَتْ وَأَخَّرَتْ ﴿٥﴾ يَا أَيُّهَا الْإِنسَانُ مَا غَرَّكَ بِرَبِّكَ الْكَرِيمِ ﴿٦﴾ الَّذِي خَلَقَكَ فَسَوَّاكَ فَعَدَلَكَ ﴿٧﴾ فِي أَيِّ صُورَةٍ مَّا شَاءَ رَكَّبَكَ ﴿٨﴾ كَلَّا بَلْ تُكَذِّبُونَ بِالدِّينِ ﴿٩﴾ وَإِنَّ عَلَيْكُمْ لَحَافِظِينَ ﴿١٠﴾ كِرَامًا كَاتِبِينَ ﴿١١﴾ يَعْلَمُونَ مَا تَفْعَلُونَ ﴿١٢﴾ إِنَّ الْأَبْرَارَ لَفِي نَعِيمٍ ﴿١٣﴾ وَإِنَّ الْفُجَّارَ لَفِي جَحِيمٍ ﴿١٤﴾ يَصْلَوْنَهَا يَوْمَ الدِّينِ ﴿١٥﴾ وَمَا هُمْ عَنْهَا بِغَائِبِينَ ﴿١٦﴾ وَمَا أَدْرَاكَ مَا يَوْمُ الدِّينِ ﴿١٧﴾ ثُمَّ مَا أَدْرَاكَ مَا يَوْمُ الدِّينِ ﴿١٨﴾ يَوْمَ لَا تَمْلِكُ نَفْسٌ لِّنَفْسٍ شَيْئًا ۖ وَالْأَمْرُ يَوْمَئِذٍ لِّلَّهِ ﴿١٩﴾",
+    arti:
+      "(1) Apabila langit terbelah, (2) dan apabila bintang-bintang jatuh berserakan, (3) dan apabila lautan menjadikan meluap, (4) dan apabila kuburan-kuburan dibongkar, (5) maka tiap-tiap jiwa akan mengetahui apa yang telah dikerjakan dan yang dilalaikannya. (6) Hai manusia, apakah yang telah memperdayakan kamu (berbuat durhaka) terhadap Tuhanmu Yang Maha Pemurah. (7) Yang telah menciptakan kamu lalu menyempurnakan kejadianmu dan menjadikan (susunan tubuh)mu seimbang, (8) dalam bentuk apa saja yang Dia kehendaki, Dia menyusun tubuhmu. (9) Bukan hanya durhaka saja, bahkan kamu mendustakan hari pembalasan. (10) Padahal sesungguhnya bagi kamu ada (malaikat-malaikat) yang mengawasi (pekerjaanmu), (11) yang mulia (di sisi Allah) dan mencatat (pekerjaan-pekerjaanmu itu), (12) mereka mengetahui apa yang kamu kerjakan. (13) Sesungguhnya orang-orang yang banyak berbakti benar-benar berada dalam surga yang penuh kenikmatan, (14) dan sesungguhnya orang-orang yang durhaka benar-benar berada dalam neraka. (15) Mereka masuk ke dalamnya pada hari pembalasan. (16) Dan mereka sekali-kali tidak dapat keluar dari neraka itu. (17) Tahukah kamu apakah hari pembalasan itu? (18) Sekali lagi, tahukah kamu apakah hari pembalasan itu? (19) (Yaitu) hari (ketika) seseorang tidak berdaya sedikitpun untuk menolong orang lain. Dan segala urusan pada hari itu dalam kekuasaan Allah.",
+    catatanTajwid: 'Perhatikan ikhfa pada انْفَطَرَتْ dan انْتَثَرَتْ dengan dengung sedang.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/82.mp3',
+    audioLabel: 'Murottal QS. Al-Infithar · Syekh Mishary Alafasy',
+  },
+  {
+    judul: 'Surah At-Takwir',
+    subJudul: 'QS. 81 · 29 Ayat',
+    jenjang: 'MI Kelas 5',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nإِذَا الشَّمْسُ كُوِّرَتْ ﴿١﴾ وَإِذَا النُّجُومُ انكَدَرَتْ ﴿٢﴾ وَإِذَا الْجِبَالُ سُيِّرَتْ ﴿٣﴾ وَإِذَا الْعِشَارُ عُطِّلَتْ ﴿٤﴾ وَإِذَا الْوُحُوشُ حُشِرَتْ ﴿٥﴾ وَإِذَا الْبِحَارُ سُجِّرَتْ ﴿٦﴾ وَإِذَا النُّفُوسُ زُوِّجَتْ ﴿٧﴾ وَإِذَا الْمَوْءُودَةُ سُئِلَتْ ﴿٨﴾ بِأَيِّ ذَنبٍ قُتِلَتْ ﴿٩﴾ وَإِذَا الصُّحُفُ نُشِرَتْ ﴿١٠﴾ وَإِذَا السَّمَاءُ كُشِطَتْ ﴿١١﴾ وَإِذَا الْجَحِيمُ سُعِّرَتْ ﴿١٢﴾ وَإِذَا الْجَنَّةُ أُزْلِفَتْ ﴿١٣﴾ عَلِمَتْ نَفْسٌ مَّا أَحْضَرَتْ ﴿١٤﴾ فَلَا أُقْسِمُ بِالْخُنَّسِ ﴿١٥﴾ الْجَوَارِ الْكُنَّسِ ﴿١٦﴾ وَاللَّيْلِ إِذَا عَسْعَسَ ﴿١٧﴾ وَالصُّبْحِ إِذَا تَنَفَّسَ ﴿١٨﴾ إِنَّهُ لَقَوْلُ رَسُولٍ كَرِيمٍ ﴿١٩﴾ ذِي قُوَّةٍ عِندَ ذِي الْعَرْشِ مَكِينٍ ﴿٢٠﴾ مُّطَاعٍ ثَمَّ أَمِينٍ ﴿٢١﴾ وَمَا صَاحِبُكُم بِمَجْنُونٍ ﴿٢٢﴾ وَلَقَدْ رَآهُ بِالْأُفُقِ الْمُبِينِ ﴿٢٣﴾ وَمَا هُوَ عَلَى الْغَيْبِ بِضَنِينٍ ﴿٢٤﴾ وَمَا هُوَ بِقَوْلِ شَيْطَانٍ رَّجِيمٍ ﴿٢٥﴾ فَأَيْنَ تَذْهَبُونَ ﴿٢٦﴾ إِنْ هُوَ إِلَّا ذِكْرٌ لِّلْعَالَمِينَ ﴿٢٧﴾ لِمَن شَاءَ مِنكُمْ أَن يَسْتَقِيمَ ﴿٢٨﴾ وَمَا تَشَاءُونَ إِلَّا أَن يَشَاءَ اللَّهُ رَبُّ الْعَالَمِينَ ﴿٢٩﴾",
+    arti:
+      "(1) Apabila matahari digulung, (2) dan apabila bintang-bintang berjatuhan, (3) dan apabila gunung-gunung dihancurkan, (4) dan apabila unta-unta yang bunting ditinggalkan (tidak diperdulikan) (5) dan apabila binatang-binatang liar dikumpulkan, (6) dan apabila lautan dijadikan meluap (7) dan apabila ruh-ruh dipertemukan (dengan tubuh) (8) dan apabila bayi-bayi perempuan yang dikubur hidup-hidup ditanya, (9) karena dosa apakah dia dibunuh, (10) dan apabila catatan-catatan (amal perbuatan manusia) dibuka, (11) dan apabila langit dilenyapkan, (12) dan apabila neraka Jahim dinyalakan, (13) dan apabila surga didekatkan, (14) maka tiap-tiap jiwa akan mengetahui apa yang telah dikerjakannya. (15) Sungguh, Aku bersumpah dengan bintang-bintang, (16) yang beredar dan terbenam, (17) demi malam apabila telah hampir meninggalkan gelapnya, (18) dan demi subuh apabila fajarnya mulai menyingsing, (19) sesungguhnya Al Quran itu benar-benar firman (Allah yang dibawa oleh) utusan yang mulia (Jibril), (20) yang mempunyai kekuatan, yang mempunyai kedudukan tinggi di sisi Allah yang mempunyai 'Arsy, (21) yang ditaati di sana (di alam malaikat) lagi dipercaya. (22) Dan temanmu (Muhammad) itu bukanlah sekali-kali orang yang gila. (23) Dan sesungguhnya Muhammad itu melihat Jibril di ufuk yang terang. (24) Dan dia (Muhammad) bukanlah orang yang bakhil untuk menerangkan yang ghaib. (25) Dan Al Quran itu bukanlah perkataan syaitan yang terkutuk, (26) maka ke manakah kamu akan pergi? (27) Al Quran itu tiada lain hanyalah peringatan bagi semesta alam, (28) (yaitu) bagi siapa di antara kamu yang mau menempuh jalan yang lurus. (29) Dan kamu tidak dapat menghendaki (menempuh jalan itu) kecuali apabila dikehendaki Allah, Tuhan semesta alam.",
+    catatanTajwid: 'Jaga ritme bacaan waqaf Ta sukun dan tasydid yang jelas.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/81.mp3',
+    audioLabel: 'Murottal QS. At-Takwir · Syekh Mishary Alafasy',
+  },
+  {
+    judul: "Surah 'Abasa",
+    subJudul: 'QS. 80 · 42 Ayat',
+    jenjang: 'MI Kelas 5',
+    semester: 1,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nعَبَسَ وَتَوَلَّىٰ ﴿١﴾ أَن جَاءَهُ الْأَعْمَىٰ ﴿٢﴾ وَمَا يُدْرِيكَ لَعَلَّهُ يَزَّكَّىٰ ﴿٣﴾ أَوْ يَذَّكَّرُ فَتَنفَعَهُ الذِّكْرَىٰ ﴿٤﴾ أَمَّا مَنِ اسْتَغْنَىٰ ﴿٥﴾ فَأَنتَ لَهُ تَصَدَّىٰ ﴿٦﴾ وَمَا عَلَيْكَ أَلَّا يَزَّكَّىٰ ﴿٧﴾ وَأَمَّا مَن جَاءَكَ يَسْعَىٰ ﴿٨﴾ وَهُوَ يَخْشَىٰ ﴿٩﴾ فَأَنتَ عَنْهُ تَلَهَّىٰ ﴿١٠﴾ كَلَّا إِنَّهَا تَذْكِرَةٌ ﴿١١﴾ فَمَن شَاءَ ذَكَرَهُ ﴿١٢﴾ فِي صُحُفٍ مُّكَرَّمَةٍ ﴿١٣﴾ مَّرْفُوعَةٍ مُّطَهَّرَةٍ ﴿١٤﴾ بِأَيْدِي سَفَرَةٍ ﴿١٥﴾ كِرَامٍ بَرَرَةٍ ﴿١٦﴾ قُتِلَ الْإِنسَانُ مَا أَكْفَرَهُ ﴿١٧﴾ مِنْ أَيِّ شَيْءٍ خَلَقَهُ ﴿١٨﴾ مِن نُّطْفَةٍ خَلَقَهُ فَقَدَّرَهُ ﴿١٩﴾ ثُمَّ السَّبِيلَ يَسَّرَهُ ﴿٢٠﴾ ثُمَّ أَمَاتَهُ فَأَقْبَرَهُ ﴿٢١﴾ ثُمَّ إِذَا شَاءَ أَنشَرَهُ ﴿٢٢﴾ كَلَّا لَمَّا يَقْضِ مَا أَمَرَهُ ﴿٢٣﴾ فَلْيَنظُرِ الْإِنسَانُ إِلَىٰ طَعَامِهِ ﴿٢٤﴾ أَنَّا صَبَبْنَا الْمَاءَ صَبًّا ﴿٢٥﴾ ثُمَّ شَقَقْنَا الْأَرْضَ شَقًّا ﴿٢٦﴾ فَأَنبَتْنَا فِيهَا حَبًّا ﴿٢٧﴾ وَعِنَبًا وَقَضْبًا ﴿٢٨﴾ وَزَيْتُونًا وَنَخْلًا ﴿٢٩﴾ وَحَدَائِقَ غُلْبًا ﴿٣٠﴾ وَفَاكِهَةً وَأَبًّا ﴿٣١﴾ مَّتَاعًا لَّكُمْ وَلِأَنْعَامِكُمْ ﴿٣٢﴾ فَإِذَا جَاءَتِ الصَّاخَّةُ ﴿٣٣﴾ يَوْمَ يَفِرُّ الْمَرْءُ مِنْ أَخِيهِ ﴿٣٤﴾ وَأُمِّهِ وَأَبِيهِ ﴿٣٥﴾ وَصَاحِبَتِهِ وَبَنِيهِ ﴿٣٦﴾ لِكُلِّ امْرِئٍ مِّنْهُمْ يَوْمَئِذٍ شَأْنٌ يُغْنِيهِ ﴿٣٧﴾ وُجُوهٌ يَوْمَئِذٍ مُّسْفِرَةٌ ﴿٣٨﴾ ضَاحِكَةٌ مُّسْتَبْشِرَةٌ ﴿٣٩﴾ وَوُجُوهٌ يَوْمَئِذٍ عَلَيْهَا غَبَرَةٌ ﴿٤٠﴾ تَرْهَقُهَا قَتَرَةٌ ﴿٤١﴾ أُولَٰئِكَ هُمُ الْكَفَرَةُ الْفَجَرَةُ ﴿٤٢﴾",
+    arti:
+      "(1) Dia (Muhammad) bermuka masam dan berpaling, (2) karena telah datang seorang buta kepadanya. (3) Tahukah kamu barangkali ia ingin membersihkan dirinya (dari dosa), (4) atau dia (ingin) mendapatkan pengajaran, lalu pengajaran itu memberi manfaat kepadanya? (5) Adapun orang yang merasa dirinya serba cukup, (6) maka kamu melayaninya. (7) Padahal tidak ada (celaan) atasmu kalau dia tidak membersihkan diri (beriman). (8) Dan adapun orang yang datang kepadamu dengan bersegera (untuk mendapatkan pengajaran), (9) sedang ia takut kepada (Allah), (10) maka kamu mengabaikannya. (11) Sekali-kali jangan (demikian)! Sesungguhnya ajaran-ajaran Tuhan itu adalah suatu peringatan, (12) maka barangsiapa yang menghendaki, tentulah ia memperhatikannya, (13) di dalam kitab-kitab yang dimuliakan, (14) yang ditinggikan lagi disucikan, (15) di tangan para penulis (malaikat), (16) yang mulia lagi berbakti. (17) Binasalah manusia; alangkah amat sangat kekafirannya? (18) Dari apakah Allah menciptakannya? (19) Dari setetes mani, Allah menciptakannya lalu menentukannya. (20) Kemudian Dia memudahkan jalannya. (21) kemudian Dia mematikannya dan memasukkannya ke dalam kubur, (22) kemudian bila Dia menghendaki, Dia membangkitkannya kembali. (23) Sekali-kali jangan; manusia itu belum melaksanakan apa yang diperintahkan Allah kepadanya, (24) maka hendaklah manusia itu memperhatikan makanannya. (25) Sesungguhnya Kami benar-benar telah mencurahkan air (dari langit), (26) kemudian Kami belah bumi dengan sebaik-baiknya, (27) lalu Kami tumbuhkan biji-bijian di bumi itu, (28) anggur dan sayur-sayuran, (29) zaitun dan kurma, (30) kebun-kebun (yang) lebat, (31) dan buah-buahan serta rumput-rumputan, (32) untuk kesenanganmu dan untuk binatang-binatang ternakmu. (33) Dan apabila datang suara yang memekakkan (tiupan sangkakala yang kedua), (34) pada hari ketika manusia lari dari saudaranya, (35) dari ibu dan bapaknya, (36) dari istri dan anak-anaknya. (37) Setiap orang dari mereka pada hari itu mempunyai urusan yang cukup menyibukkannya. (38) Banyak muka pada hari itu berseri-seri, (39) tertawa dan bergembira ria, (40) dan banyak (pula) muka pada hari itu tertutup debu, (41) dan ditutup lagi oleh kegelapan. (42) Mereka itulah orang-orang kafir lagi durhaka.",
+    catatanTajwid: 'Terapkan ikhfa pada اَنْ جَآءَهُ dan mad wajib muttashil.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/80.mp3',
+    audioLabel: "Murottal QS. 'Abasa · Syekh Mishary Alafasy",
+  },
+  {
+    judul: "Surah An-Nazi'at",
+    subJudul: 'QS. 79 · 46 Ayat',
+    jenjang: 'MI Kelas 5',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nوَالنَّازِعَاتِ غَرْقًا ﴿١﴾ وَالنَّاشِطَاتِ نَشْطًا ﴿٢﴾ وَالسَّابِحَاتِ سَبْحًا ﴿٣﴾ فَالسَّابِقَاتِ سَبْقًا ﴿٤﴾ فَالْمُدَبِّرَاتِ أَمْرًا ﴿٥﴾ يَوْمَ تَرْجُفُ الرَّاجِفَةُ ﴿٦﴾ تَتْبَعُهَا الرَّادِفَةُ ﴿٧﴾ قُلُوبٌ يَوْمَئِذٍ وَاجِفَةٌ ﴿٨﴾ أَبْصَارُهَا خَاشِعَةٌ ﴿٩﴾ يَقُولُونَ أَإِنَّا لَمَرْدُودُونَ فِي الْحَافِرَةِ ﴿١٠﴾ أَإِذَا كُنَّا عِظَامًا نَّخِرَةً ﴿١١﴾ قَالُوا تِلْكَ إِذًا كَرَّةٌ خَاسِرَةٌ ﴿١٢﴾ فَإِنَّمَا هِيَ زَجْرَةٌ وَاحِدَةٌ ﴿١٣﴾ فَإِذَا هُم بِالسَّاهِرَةِ ﴿١٤﴾ هَلْ أَتَاكَ حَدِيثُ مُوسَىٰ ﴿١٥﴾ إِذْ نَادَاهُ رَبُّهُ بِالْوَادِ الْمُقَدَّسِ طُوًى ﴿١٦﴾ اذْهَبْ إِلَىٰ فِرْعَوْنَ إِنَّهُ طَغَىٰ ﴿١٧﴾ فَقُلْ هَل لَّكَ إِلَىٰ أَن تَزَكَّىٰ ﴿١٨﴾ وَأَهْدِيَكَ إِلَىٰ رَبِّكَ فَتَخْشَىٰ ﴿١٩﴾ فَأَرَاهُ الْآيَةَ الْكُبْرَىٰ ﴿٢٠﴾ فَكَذَّبَ وَعَصَىٰ ﴿٢١﴾ ثُمَّ أَدْبَرَ يَسْعَىٰ ﴿٢٢﴾ فَحَشَرَ فَنَادَىٰ ﴿٢٣﴾ فَقَالَ أَنَا رَبُّكُمُ الْأَعْلَىٰ ﴿٢٤﴾ فَأَخَذَهُ اللَّهُ نَكَالَ الْآخِرَةِ وَالْأُولَىٰ ﴿٢٥﴾ إِنَّ فِي ذَٰلِكَ لَعِبْرَةً لِّمَن يَخْشَىٰ ﴿٢٦﴾ أَأَنتُمْ أَشَدُّ خَلْقًا أَمِ السَّمَاءُ ۚ بَنَاهَا ﴿٢٧﴾ رَفَعَ سَمْكَهَا فَسَوَّاهَا ﴿٢٨﴾ وَأَغْطَشَ لَيْلَهَا وَأَخْرَجَ ضُحَاهَا ﴿٢٩﴾ وَالْأَرْضَ بَعْدَ ذَٰلِكَ دَحَاهَا ﴿٣٠﴾ أَخْرَجَ مِنْهَا مَاءَهَا وَمَرْعَاهَا ﴿٣١﴾ وَالْجِبَالَ أَرْسَاهَا ﴿٣٢﴾ مَتَاعًا لَّكُمْ وَلِأَنْعَامِكُمْ ﴿٣٣﴾ فَإِذَا جَاءَتِ الطَّامَّةُ الْكُبْرَىٰ ﴿٣٤﴾ يَوْمَ يَتَذَكَّرُ الْإِنسَانُ مَا سَعَىٰ ﴿٣٥﴾ وَبُرِّزَتِ الْجَحِيمُ لِمَن يَرَىٰ ﴿٣٦﴾ فَأَمَّا مَن طَغَىٰ ﴿٣٧﴾ وَآثَرَ الْحَيَاةَ الدُّنْيَا ﴿٣٨﴾ فَإِنَّ الْجَحِيمَ هِيَ الْمَأْوَىٰ ﴿٣٩﴾ وَأَمَّا مَنْ خَافَ مَقَامَ رَبِّهِ وَنَهَى النَّفْسَ عَنِ الْهَوَىٰ ﴿٤٠﴾ فَإِنَّ الْجَنَّةَ هِيَ الْمَأْوَىٰ ﴿٤١﴾ يَسْأَلُونَكَ عَنِ السَّاعَةِ أَيَّانَ مُرْسَاهَا ﴿٤٢﴾ فِيمَ أَنتَ مِن ذِكْرَاهَا ﴿٤٣﴾ إِلَىٰ رَبِّكَ مُنتَهَاهَا ﴿٤٤﴾ إِنَّمَا أَنتَ مُنذِرُ مَن يَخْشَاهَا ﴿٤٥﴾ كَأَنَّهُمْ يَوْمَ يَرَوْنَهَا لَمْ يَلْبَثُوا إِلَّا عَشِيَّةً أَوْ ضُحَاهَا ﴿٤٦﴾",
+    arti:
+      "(1) Demi (malaikat-malaikat) yang mencabut (nyawa) dengan keras, (2) dan (malaikat-malaikat) yang mencabut (nyawa) dengan lemah-lembut, (3) dan (malaikat-malaikat) yang turun dari langit dengan cepat, (4) dan (malaikat-malaikat) yang mendahului dengan kencang, (5) dan (malaikat-malaikat) yang mengatur urusan (dunia). (6) (Sesungguhnya kamu akan dibangkitkan) pada hari ketika tiupan pertama menggoncang alam, (7) tiupan pertama itu diiringi oleh tiupan kedua. (8) Hati manusia pada waktu itu sangat takut, (9) Pandangannya tunduk. (10) (Orang-orang kafir) berkata: \"Apakah sesungguhnya kami benar-benar dikembalikan kepada kehidupan semula? (11) Apakah (akan dibangkitkan juga) apabila kami telah menjadi tulang belulang yang hancur lumat?\" (12) Mereka berkata: \"Kalau demikian, itu adalah suatu pengembalian yang merugikan\". (13) Sesungguhnya pengembalian itu hanyalah satu kali tiupan saja, (14) maka dengan serta merta mereka hidup kembali di permukaan bumi. (15) Sudah sampaikah kepadamu (ya Muhammad) kisah Musa. (16) Tatkala Tuhannya memanggilnya di lembah suci ialah Lembah Thuwa; (17) \"Pergilah kamu kepada Fir'aun, sesungguhnya dia telah melampaui batas, (18) dan katakanlah (kepada Fir'aun): \"Adakah keinginan bagimu untuk membersihkan diri (dari kesesatan)\". (19) Dan kamu akan kupimpin ke jalan Tuhanmu agar supaya kamu takut kepada-Nya?\" (20) Lalu Musa memperlihatkan kepadanya mukjizat yang besar. (21) Tetapi Fir'aun mendustakan dan mendurhakai. (22) Kemudian dia berpaling seraya berusaha menantang (Musa). (23) Maka dia mengumpulkan (pembesar-pembesarnya) lalu berseru memanggil kaumnya. (24) (Seraya) berkata: \"Akulah tuhanmu yang paling tinggi\". (25) Maka Allah mengazabnya dengan azab di akhirat dan azab di dunia. (26) Sesungguhnya pada yang demikian itu terdapat pelajaran bagi orang yang takut (kepada Tuhannya). (27) Apakah kamu lebih sulit penciptaanya ataukah langit? Allah telah membinanya, (28) Dia meninggikan bangunannya lalu menyempurnakannya, (29) dan Dia menjadikan malamnya gelap gulita, dan menjadikan siangnya terang benderang. (30) Dan bumi sesudah itu dihamparkan-Nya. (31) Ia memancarkan daripadanya mata airnya, dan (menumbuhkan) tumbuh-tumbuhannya. (32) Dan gunung-gunung dipancangkan-Nya dengan teguh, (33) (semua itu) untuk kesenanganmu dan untuk binatang-binatang ternakmu. (34) Maka apabila malapetaka yang sangat besar (hari kiamat) telah datang. (35) Pada hari (ketika) manusia teringat akan apa yang telah dikerjakannya, (36) dan diperlihatkan neraka dengan jelas kepada setiap orang yang melihat. (37) Adapun orang yang melampaui batas, (38) dan lebih mengutamakan kehidupan dunia, (39) maka sesungguhnya nerakalah tempat tinggal(nya). (40) Dan adapun orang-orang yang takut kepada kebesaran Tuhannya dan menahan diri dari keinginan hawa nafsunya, (41) maka sesungguhnya surgalah tempat tinggal(nya). (42) (Orang-orang kafir) bertanya kepadamu (Muhammad) tentang hari kebangkitan, kapankah terjadinya? (43) Siapakah kamu (maka) dapat menyebutkan (waktunya)? (44) Kepada Tuhanmulah dikembalikan kesudahannya (ketentuan waktunya). (45) Kamu hanyalah pemberi peringatan bagi siapa yang takut kepadanya (hari berbangkit) (46) Pada hari mereka melihat hari berbangkit itu, mereka merasa seakan-akan tidak tinggal (di dunia) melainkan (sebentar saja) di waktu sore atau pagi hari.",
+    catatanTajwid: 'Perhatikan mad iwadh pada akhir ayat dan ghunnah Nun tasydid.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/79.mp3',
+    audioLabel: "Murottal QS. An-Nazi'at · Syekh Mishary Alafasy",
+  },
+  {
+    judul: "Surah An-Naba'",
+    subJudul: 'QS. 78 · 40 Ayat',
+    jenjang: 'MI Kelas 5',
+    semester: 2,
+    teksArab:
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nعَمَّ يَتَسَاءَلُونَ ﴿١﴾ عَنِ النَّبَإِ الْعَظِيمِ ﴿٢﴾ الَّذِي هُمْ فِيهِ مُخْتَلِفُونَ ﴿٣﴾ كَلَّا سَيَعْلَمُونَ ﴿٤﴾ ثُمَّ كَلَّا سَيَعْلَمُونَ ﴿٥﴾ أَلَمْ نَجْعَلِ الْأَرْضَ مِهَادًا ﴿٦﴾ وَالْجِبَالَ أَوْتَادًا ﴿٧﴾ وَخَلَقْنَاكُمْ أَزْوَاجًا ﴿٨﴾ وَجَعَلْنَا نَوْمَكُمْ سُبَاتًا ﴿٩﴾ وَجَعَلْنَا اللَّيْلَ لِبَاسًا ﴿١٠﴾ وَجَعَلْنَا النَّهَارَ مَعَاشًا ﴿١١﴾ وَبَنَيْنَا فَوْقَكُمْ سَبْعًا شِدَادًا ﴿١٢﴾ وَجَعَلْنَا سِرَاجًا وَهَّاجًا ﴿١٣﴾ وَأَنزَلْنَا مِنَ الْمُعْصِرَاتِ مَاءً ثَجَّاجًا ﴿١٤﴾ لِّنُخْرِجَ بِهِ حَبًّا وَنَبَاتًا ﴿١٥﴾ وَجَنَّاتٍ أَلْفَافًا ﴿١٦﴾ إِنَّ يَوْمَ الْفَصْلِ كَانَ مِيقَاتًا ﴿١٧﴾ يَوْمَ يُنفَخُ فِي الصُّورِ فَتَأْتُونَ أَفْوَاجًا ﴿١٨﴾ وَفُتِحَتِ السَّمَاءُ فَكَانَتْ أَبْوَابًا ﴿١٩﴾ وَسُيِّرَتِ الْجِبَالُ فَكَانَتْ سَرَابًا ﴿٢٠﴾ إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا ﴿٢١﴾ لِّلطَّاغِينَ مَآبًا ﴿٢٢﴾ لَّابِثِينَ فِيهَا أَحْقَابًا ﴿٢٣﴾ لَّا يَذُوقُونَ فِيهَا بَرْدًا وَلَا شَرَابًا ﴿٢٤﴾ إِلَّا حَمِيمًا وَغَسَّاقًا ﴿٢٥﴾ جَزَاءً وِفَاقًا ﴿٢٦﴾ إِنَّهُمْ كَانُوا لَا يَرْجُونَ حِسَابًا ﴿٢٧﴾ وَكَذَّبُوا بِآيَاتِنَا كِذَّابًا ﴿٢٨﴾ وَكُلَّ شَيْءٍ أَحْصَيْنَاهُ كِتَابًا ﴿٢٩﴾ فَذُوقُوا فَلَن نَّزِيدَكُمْ إِلَّا عَذَابًا ﴿٣٠﴾ إِنَّ لِلْمُتَّقِينَ مَفَازًا ﴿٣١﴾ حَدَائِقَ وَأَعْنَابًا ﴿٣٢﴾ وَكَوَاعِبَ أَتْرَابًا ﴿٣٣﴾ وَكَأْسًا دِهَاقًا ﴿٣٤﴾ لَّا يَسْمَعُونَ فِيهَا لَغْوًا وَلَا كِذَّابًا ﴿٣٥﴾ جَزَاءً مِّن رَّبِّكَ عَطَاءً حِسَابًا ﴿٣٦﴾ رَّبِّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الرَّحْمَٰنِ ۖ لَا يَمْلِكُونَ مِنْهُ خِطَابًا ﴿٣٧﴾ يَوْمَ يَقُومُ الرُّوحُ وَالْمَلَائِكَةُ صَفًّا ۖ لَّا يَتَكَلَّمُونَ إِلَّا مَنْ أَذِنَ لَهُ الرَّحْمَٰنُ وَقَالَ صَوَابًا ﴿٣٨﴾ ذَٰلِكَ الْيَوْمُ الْحَقُّ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ مَآبًا ﴿٣٩﴾ إِنَّا أَنذَرْنَاكُمْ عَذَابًا قَرِيبًا يَوْمَ يَنظُرُ الْمَرْءُ مَا قَدَّمَتْ يَدَاهُ وَيَقُولُ الْكَافِرُ يَا لَيْتَنِي كُنتُ تُرَابًا ﴿٤٠﴾",
+    arti:
+      "(1) Tentang apakah mereka saling bertanya-tanya? (2) Tentang berita yang besar, (3) yang mereka perselisihkan tentang ini. (4) Sekali-kali tidak; kelak mereka akan mengetahui, (5) kemudian sekali-kali tidak; kelak mereka mengetahui. (6) Bukankah Kami telah menjadikan bumi itu sebagai hamparan?, (7) dan gunung-gunung sebagai pasak?, (8) dan Kami jadikan kamu berpasang-pasangan, (9) dan Kami jadikan tidurmu untuk istirahat, (10) dan Kami jadikan malam sebagai pakaian, (11) dan Kami jadikan siang untuk mencari penghidupan, (12) dan Kami bina di atas kamu tujuh buah (langit) yang kokoh, (13) dan Kami jadikan pelita yang amat terang (matahari), (14) dan Kami turunkan dari awan air yang banyak tercurah, (15) supaya Kami tumbuhkan dengan air itu biji-bijian dan tumbuh-tumbuhan, (16) dan kebun-kebun yang lebat? (17) Sesungguhnya Hari Keputusan adalah suatu waktu yang ditetapkan, (18) yaitu hari (yang pada waktu itu) ditiup sangkakala lalu kamu datang berkelompok-kelompok, (19) dan dibukalah langit, maka terdapatlah beberapa pintu, (20) dan dijalankanlah gunung-gunung maka menjadi fatamorganalah ia. (21) Sesungguhnya neraka Jahannam itu (padanya) ada tempat pengintai, (22) lagi menjadi tempat kembali bagi orang-orang yang melampaui batas, (23) mereka tinggal di dalamnya berabad-abad lamanya, (24) mereka tidak merasakan kesejukan di dalamnya dan tidak (pula mendapat) minuman, (25) selain air yang mendidih dan nanah, (26) sebagai pambalasan yang setimpal. (27) Sesungguhnya mereka tidak berharap (takut) kepada hisab, (28) dan mereka mendustakan ayat-ayat Kami dengan sesungguh-sungguhnya. (29) Dan segala sesuatu telah Kami catat dalam suatu kitab. (30) Karena itu rasakanlah. Dan Kami sekali-kali tidak akan menambah kepada kamu selain daripada azab. (31) Sesungguhnya orang-orang yang bertakwa mendapat kemenangan, (32) (yaitu) kebun-kebun dan buah anggur, (33) dan gadis-gadis remaja yang sebaya, (34) dan gelas-gelas yang penuh (berisi minuman). (35) Di dalamnya mereka tidak mendengar perkataan yang sia-sia dan tidak (pula) perkataan dusta. (36) Sebagai pembalasan dari Tuhanmu dan pemberian yang cukup banyak, (37) Tuhan Yang memelihara langit dan bumi dan apa yang ada di antara keduanya; Yang Maha Pemurah. Mereka tidak dapat berbicara dengan Dia. (38) Pada hari, ketika ruh dan para malaikat berdiri bershaf-shaf, mereka tidak berkata-kata, kecuali siapa yang telah diberi izin kepadanya oleh Tuhan Yang Maha Pemurah; dan ia mengucapkan kata yang benar. (39) Itulah hari yang pasti terjadi. Maka barangsiapa yang menghendaki, niscaya ia menempuh jalan kembali kepada Tuhannya. (40) Sesungguhnya Kami telah memperingatkan kepadamu (hai orang kafir) siksa yang dekat, pada hari manusia melihat apa yang telah diperbuat oleh kedua tangannya; dan orang kafir berkata: \"Alangkah baiknya sekiranya aku dahulu adalah tanah\".",
+    catatanTajwid: 'Dengungkan Mim tasydid pada عَمَّ dan mad wajib muttashil pada يَتَسَآءَلُوْنَ.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/78.mp3',
+    audioLabel: "Murottal QS. An-Naba' · Syekh Mishary Alafasy",
+  },
+  // MI Kelas 6
+  {
+    judul: "Muraja'ah & Tasmi' Juz 30 (An-Naba' – Ad-Dhuha)",
+    subJudul: 'QS. 78 – QS. 93 · Penguatan & Sertifikasi',
+    jenjang: 'MI Kelas 6',
+    semester: 1,
+    teksArab:
+      'وَلَقَدْ يَسَّرْنَا الْقُرْاٰنَ لِلذِّكْرِ فَهَلْ مِنْ مُّدَّكِرٍ ۝',
+    arti:
+      'Dan sungguh, telah Kami mudahkan Al-Qur’an untuk peringatan, maka adakah orang yang mau mengambil pelajaran?',
+    catatanTajwid: 'Fokus ujian tasmi’ sekali duduk (QS. 78 An-Naba’ hingga QS. 93 Ad-Dhuha) dengan ketepatan waqaf, ibtida’, dan kelancaran.',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/78.mp3',
+    audioLabel: "Audio Muraja'ah QS. An-Naba' – Ad-Dhuha · Syekh Mishary Alafasy",
+    audioPlaylist: [
+      { title: "Surah An-Naba'", subtitle: 'QS. 78 · 40 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/78.mp3', audioLabel: "Murottal QS. An-Naba' · Syekh Mishary Alafasy" },
+      { title: "Surah An-Nazi'at", subtitle: 'QS. 79 · 46 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/79.mp3', audioLabel: "Murottal QS. An-Nazi'at · Syekh Mishary Alafasy" },
+      { title: "Surah 'Abasa", subtitle: 'QS. 80 · 42 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/80.mp3', audioLabel: "Murottal QS. 'Abasa · Syekh Mishary Alafasy" },
+      { title: 'Surah At-Takwir', subtitle: 'QS. 81 · 29 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/81.mp3', audioLabel: 'Murottal QS. At-Takwir · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Infithar', subtitle: 'QS. 82 · 19 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/82.mp3', audioLabel: 'Murottal QS. Al-Infithar · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Mutaffifin', subtitle: 'QS. 83 · 36 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/83.mp3', audioLabel: 'Murottal QS. Al-Mutaffifin · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Insyiqaq', subtitle: 'QS. 84 · 25 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/84.mp3', audioLabel: 'Murottal QS. Al-Insyiqaq · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Buruj', subtitle: 'QS. 85 · 22 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/85.mp3', audioLabel: 'Murottal QS. Al-Buruj · Syekh Mishary Alafasy' },
+      { title: 'Surah At-Tariq', subtitle: 'QS. 86 · 17 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/86.mp3', audioLabel: 'Murottal QS. At-Tariq · Syekh Mishary Alafasy' },
+      { title: "Surah Al-A'la", subtitle: 'QS. 87 · 19 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/87.mp3', audioLabel: "Murottal QS. Al-A'la · Syekh Mishary Alafasy" },
+      { title: 'Surah Al-Ghasyiyah', subtitle: 'QS. 88 · 26 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/88.mp3', audioLabel: 'Murottal QS. Al-Ghasyiyah · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Fajr', subtitle: 'QS. 89 · 30 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/89.mp3', audioLabel: 'Murottal QS. Al-Fajr · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Balad', subtitle: 'QS. 90 · 20 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/90.mp3', audioLabel: 'Murottal QS. Al-Balad · Syekh Mishary Alafasy' },
+      { title: 'Surah Asy-Syams', subtitle: 'QS. 91 · 15 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/91.mp3', audioLabel: 'Murottal QS. Asy-Syams · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Lail', subtitle: 'QS. 92 · 21 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/92.mp3', audioLabel: 'Murottal QS. Al-Lail · Syekh Mishary Alafasy' },
+      { title: 'Surah Ad-Dhuha', subtitle: 'QS. 93 · 11 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/93.mp3', audioLabel: 'Murottal QS. Ad-Dhuha · Syekh Mishary Alafasy' },
+    ],
+  },
+  {
+    judul: "Muraja'ah & Tasmi' Akhir Juz 30 (Al-Insyirah – An-Nas)",
+    subJudul: 'QS. 94 – QS. 114 · Ujian Akhir Madrasah',
+    jenjang: 'MI Kelas 6',
+    semester: 2,
+    teksArab:
+      'اِنَّا نَحْنُ نَزَّلْنَا الذِّكْرَ وَاِنَّا لَهٗ لَحٰفِظُوْنَ ۝',
+    arti:
+      'Sesungguhnya Kamilah yang menurunkan Al-Qur’an, dan pasti Kami (pula) yang memeliharanya.',
+    catatanTajwid: 'Persiapan khataman & munaqosyah tahfidz kelas 6 MI Unggulan Al Ma’ruf (QS. 94 Al-Insyirah hingga QS. 114 An-Nas).',
+    audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/94.mp3',
+    audioLabel: "Audio Muraja'ah QS. Al-Insyirah – An-Nas · Syekh Mishary Alafasy",
+    audioPlaylist: [
+      { title: 'Surah Al-Insyirah', subtitle: 'QS. 94 · 8 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/94.mp3', audioLabel: 'Murottal QS. Al-Insyirah · Syekh Mishary Alafasy' },
+      { title: 'Surah At-Tin', subtitle: 'QS. 95 · 8 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/95.mp3', audioLabel: 'Murottal QS. At-Tin · Syekh Mishary Alafasy' },
+      { title: "Surah Al-'Alaq", subtitle: 'QS. 96 · 19 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/96.mp3', audioLabel: "Murottal QS. Al-'Alaq · Syekh Mishary Alafasy" },
+      { title: 'Surah Al-Qadr', subtitle: 'QS. 97 · 5 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/97.mp3', audioLabel: 'Murottal QS. Al-Qadr · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Bayyinah', subtitle: 'QS. 98 · 8 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/98.mp3', audioLabel: 'Murottal QS. Al-Bayyinah · Syekh Mishary Alafasy' },
+      { title: 'Surah Az-Zalzalah', subtitle: 'QS. 99 · 8 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/99.mp3', audioLabel: 'Murottal QS. Az-Zalzalah · Syekh Mishary Alafasy' },
+      { title: "Surah Al-'Adiyat", subtitle: 'QS. 100 · 11 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/100.mp3', audioLabel: "Murottal QS. Al-'Adiyat · Syekh Mishary Alafasy" },
+      { title: "Surah Al-Qari'ah", subtitle: 'QS. 101 · 11 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/101.mp3', audioLabel: "Murottal QS. Al-Qari'ah · Syekh Mishary Alafasy" },
+      { title: 'Surah At-Takatsur', subtitle: 'QS. 102 · 8 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/102.mp3', audioLabel: 'Murottal QS. At-Takatsur · Syekh Mishary Alafasy' },
+      { title: "Surah Al-'Asr", subtitle: 'QS. 103 · 3 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/103.mp3', audioLabel: "Murottal QS. Al-'Asr · Syekh Mishary Alafasy" },
+      { title: 'Surah Al-Humazah', subtitle: 'QS. 104 · 9 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/104.mp3', audioLabel: 'Murottal QS. Al-Humazah · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Fil', subtitle: 'QS. 105 · 5 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/105.mp3', audioLabel: 'Murottal QS. Al-Fil · Syekh Mishary Alafasy' },
+      { title: 'Surah Quraisy', subtitle: 'QS. 106 · 4 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/106.mp3', audioLabel: 'Murottal QS. Quraisy · Syekh Mishary Alafasy' },
+      { title: "Surah Al-Ma'un", subtitle: 'QS. 107 · 7 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/107.mp3', audioLabel: "Murottal QS. Al-Ma'un · Syekh Mishary Alafasy" },
+      { title: 'Surah Al-Kautsar', subtitle: 'QS. 108 · 3 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/108.mp3', audioLabel: 'Murottal QS. Al-Kautsar · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Kafirun', subtitle: 'QS. 109 · 6 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/109.mp3', audioLabel: 'Murottal QS. Al-Kafirun · Syekh Mishary Alafasy' },
+      { title: 'Surah An-Nashr', subtitle: 'QS. 110 · 3 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/110.mp3', audioLabel: 'Murottal QS. An-Nashr · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Lahab', subtitle: 'QS. 111 · 5 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/111.mp3', audioLabel: 'Murottal QS. Al-Lahab · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Ikhlas', subtitle: 'QS. 112 · 4 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/112.mp3', audioLabel: 'Murottal QS. Al-Ikhlas · Syekh Mishary Alafasy' },
+      { title: 'Surah Al-Falaq', subtitle: 'QS. 113 · 5 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/113.mp3', audioLabel: 'Murottal QS. Al-Falaq · Syekh Mishary Alafasy' },
+      { title: 'Surah An-Nas', subtitle: 'QS. 114 · 6 Ayat', audioUrl: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/114.mp3', audioLabel: 'Murottal QS. An-Nas · Syekh Mishary Alafasy' },
+    ],
+  },
+];
+
+const DOA_CURRICULUM: Array<{
+  judul: string;
+  subJudul: string;
+  jenjang: Jenjang;
+  semester: Semester;
+  teksArab: string;
+  arti: string;
+  catatanTajwid: string;
+}> = [
+  {
+    judul: 'Doa Sebelum Makan',
+    subJudul: 'Adab Keseharian · RA A',
+    jenjang: 'RA A',
+    semester: 1,
+    teksArab: 'اَللّٰهُمَّ بَارِكْ لَنَا فِيْمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',
+    arti: 'Ya Allah, berkahilah rezeki yang telah Engkau berikan kepada kami dan peliharalah kami dari siksa api neraka.',
+    catatanTajwid: 'Biasakan membaca basmalah terlebih dahulu dan makan dengan tangan kanan.',
+  },
+  {
+    judul: 'Doa Sesudah Makan',
+    subJudul: 'Adab Keseharian · RA A',
+    jenjang: 'RA A',
+    semester: 1,
+    teksArab: 'اَلْحَمْدُ لِلّٰهِ الَّذِىْ اَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِيْنَ',
+    arti: 'Segala puji bagi Allah yang telah memberi kami makan dan minum serta menjadikan kami termasuk golongan orang-orang muslim.',
+    catatanTajwid: 'Jelaskan qalqalah pada اَطْعَمَنَا dan makhraj huruf Ha.',
+  },
+  {
+    judul: 'Doa Sebelum Tidur',
+    subJudul: 'Adab Keseharian · RA A',
+    jenjang: 'RA A',
+    semester: 2,
+    teksArab: 'بِاسْمِكَ اللّٰهُمَّ اَحْيَا وَبِاسْمِكَ اَمُوْتُ',
+    arti: 'Dengan menyebut nama-Mu ya Allah, aku hidup dan dengan menyebut nama-Mu aku mati.',
+    catatanTajwid: 'Dianjurkan berwudhu dan berbaring menghadap kanan sebelum tidur.',
+  },
+  {
+    judul: 'Doa Sesudah Tidur',
+    subJudul: 'Adab Keseharian · RA A',
+    jenjang: 'RA A',
+    semester: 2,
+    teksArab: 'اَلْحَمْدُ لِلّٰهِ الَّذِىْ اَحْيَانَا بَعْدَ مَا اَمَاتَنَا وَاِلَيْهِ النُّشُوْرُ',
+    arti: 'Segala puji bagi Allah yang telah menghidupkan kami setelah mematikan kami dan kepada-Nya kami kembali.',
+    catatanTajwid: 'Bacalah dengan tartil dan penuh rasa syukur saat bangun pagi.',
+  },
+  {
+    judul: 'Doa Masuk Kamar Mandi',
+    subJudul: 'Adab Keseharian · RA B',
+    jenjang: 'RA B',
+    semester: 1,
+    teksArab: 'اَللّٰهُمَّ اِنِّىْ اَعُوْذُبِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',
+    arti: 'Ya Allah, sesungguhnya aku berlindung kepada-Mu dari godaan setan laki-laki dan setan perempuan.',
+    catatanTajwid: 'Dibaca di luar pintu sebelum melangkahkan kaki kiri masuk.',
+  },
+  {
+    judul: 'Doa Keluar Kamar Mandi',
+    subJudul: 'Adab Keseharian · RA B',
+    jenjang: 'RA B',
+    semester: 1,
+    teksArab: 'غُفْرَانَكَ الْحَمْدُ لِلّٰهِ الَّذِىْ اَذْهَبَ عَنِّى الْاَذَى وَعَافَانِىْ',
+    arti: 'Aku memohon ampunan-Mu. Segala puji bagi Allah yang telah menghilangkan kotoran dariku dan menyehatkanku.',
+    catatanTajwid: 'Melangkah keluar menggunakan kaki kanan terlebih dahulu.',
+  },
+  {
+    judul: 'Niat Puasa Ramadhan',
+    subJudul: 'Ibadah Puasa · RA B',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab: 'نَوَيْتُ صَوْمَ غَدٍ عَنْ أَدَاءِ فَرْضِ شَهْرِ رَمَضَانَ هٰذِهِ السَّنَةِ لِلّٰهِ تَعَالَى',
+    arti: 'Aku berniat puasa esok hari untuk menunaikan kewajiban bulan Ramadhan tahun ini karena Allah Ta’ala.',
+    catatanTajwid: 'Dibaca pada malam hari sebelum terbit fajar (waktu sahur).',
+  },
+  {
+    judul: 'Doa Buka Puasa',
+    subJudul: 'Ibadah Puasa · RA B',
+    jenjang: 'RA B',
+    semester: 2,
+    teksArab: 'اَللّٰهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِيْنَ',
+    arti: 'Ya Allah, untuk-Mu aku berpuasa, kepada-Mu aku beriman, dan atas rezeki-Mu aku berbuka dengan rahmat-Mu wahai Yang Maha Pengasih.',
+    catatanTajwid: 'Sunnah menyegerakan berbuka dengan kurma atau air putih saat adzan Maghrib.',
+  },
+  {
+    judul: 'Niat Sholat Dhuha',
+    subJudul: 'Ibadah Sunnah · MI Kelas 1',
+    jenjang: 'MI Kelas 1',
+    semester: 1,
+    teksArab: 'أُصَلِّيْ سُنَّةَ الضُّحَى رَكْعَتَيْنِ لِلّٰهِ تَعَالَى',
+    arti: 'Aku niat sholat sunnah Dhuha dua rakaat karena Allah Ta’ala.',
+    catatanTajwid: 'Dilaksanakan pada pagi hari saat matahari mulai meninggi hingga menjelang Dzuhur.',
+  },
+  {
+    judul: 'Doa Sholat Dhuha',
+    subJudul: 'Ibadah Sunnah · MI Kelas 1',
+    jenjang: 'MI Kelas 1',
+    semester: 2,
+    teksArab: 'اَللّٰهُمَّ اِنَّ الضُّحَآءَ ضُحَاءُكَ وَالْبَهَاءَ بَهَاءُكَ وَالْجَمَالَ جَمَالُكَ وَالْقُوَّةَ قُوَّتُكَ وَالْقُدْرَةَ قُدْرَتُكَ وَالْعِصْمَةَ عِصْمَتُكَ',
+    arti: 'Ya Allah, sesungguhnya waktu Dhuha adalah waktu Dhuha-Mu, keagungan adalah keagungan-Mu, keindahan adalah keindahan-Mu, kekuatan adalah kekuatan-Mu.',
+    catatanTajwid: 'Dibaca khusyuk setelah salam sholat Dhuha.',
+  },
+  {
+    judul: 'Niat Sholat Fardlu (5 Waktu)',
+    subJudul: 'Ibadah Wajib · MI Kelas 2',
+    jenjang: 'MI Kelas 2',
+    semester: 1,
+    teksArab:
+      'أُصَلِّيْ فَرْضَ الصُّبْحِ رَكْعَتَيْنِ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى ۝ أُصَلِّيْ فَرْضَ الظُّهْرِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى ۝ أُصَلِّيْ فَرْضَ الْعَصْرِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى ۝ أُصَلِّيْ فَرْضَ الْمَغْرِبِ ثَلَاثَ رَكَعَاتٍ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى ۝ أُصَلِّيْ فَرْضَ الْعِشَاءِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى',
+    arti: 'Aku niat melaksanakan sholat fardlu (Subuh 2 rakaat / Dzuhur 4 rakaat / Ashar 4 rakaat / Maghrib 3 rakaat / Isya 4 rakaat) menghadap kiblat karena Allah Ta’ala.',
+    catatanTajwid: 'Hafalkan perbedaan jumlah rakaat serta tambahan lafadz ma’mūman atau imāman saat berjamaah.',
+  },
+  {
+    judul: 'Doa Iftitah',
+    subJudul: 'Bacaan Sholat · MI Kelas 2',
+    jenjang: 'MI Kelas 2',
+    semester: 2,
+    teksArab:
+      'اَللّٰهُ اَكْبَرُ كَبِيْرًا وَالْحَمْدُ لِلّٰهِ كَثِيْرًا وَسُبْحَانَ اللّٰهِ بُكْرَةً وَاَصِيْلًا ۝ اِنِّىْ وَجَّهْتُ وَجْهِىَ لِلَّذِىْ فَطَرَ السَّمٰوٰتِ وَالْاَرْضَ حَنِيْفًا مُسْلِمًا وَمَا اَنَا مِنَ الْمُشْرِكِيْنَ',
+    arti: 'Allah Mahabesar dengan sebesar-besarnya, segala puji bagi Allah dengan pujian yang banyak, Mahasuci Allah di waktu pagi dan petang. Sungguh aku menghadapkan wajahku kepada Tuhan yang menciptakan langit dan bumi.',
+    catatanTajwid: 'Dibaca pada rakaat pertama setelah Takbiratul Ihram sebelum membaca Al-Fatihah.',
+  },
+  {
+    judul: 'Tasyahud Awal',
+    subJudul: 'Bacaan Sholat · MI Kelas 3',
+    jenjang: 'MI Kelas 3',
+    semester: 1,
+    teksArab:
+      'اَلتَّحِيَّاتُ الْمُبَارَكَاتُ الصَّلَوَاتُ الطَّيِّبَاتُ لِلّٰهِ ۝ اَلسَّلَامُ عَلَيْكَ اَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ ۝ اَلسَّلَامُ عَلَيْنَا وَعَلٰى عِبَادِ اللّٰهِ الصَّالِحِيْنَ ۝ اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا رَسُوْلُ اللّٰهِ ۝ اَللّٰهُمَّ صَلِّ عَلٰى سَيِّدِنَا مُحَمَّدٍ',
+    arti: 'Segala kehormatan, keberkahan, shalawat, dan kebaikan hanyalah milik Allah. Keselamatan atasmu wahai Nabi beserta rahmat dan berkah Allah. Keselamatan semoga terlimpah kepada kami dan hamba-hamba Allah yang shalih.',
+    catatanTajwid: 'Perhatikan bacaan syahadatain dan posisi duduk iftirasy saat tasyahud awal.',
+  },
+  {
+    judul: 'Tasyahud Akhir (Shalawat Ibrahimiyah)',
+    subJudul: 'Bacaan Sholat · MI Kelas 3',
+    jenjang: 'MI Kelas 3',
+    semester: 2,
+    teksArab:
+      'وَعَلٰى اٰلِ سَيِّدِنَا مُحَمَّدٍ ۝ كَمَا صَلَّيْتَ عَلٰى سَيِّدِنَا اِبْرَاهِيْمَ وَعَلٰى اٰلِ سَيِّدِنَا اِبْرَاهِيْمَ وَبَارِكْ عَلٰى سَيِّدِنَا مُحَمَّدٍ وَعَلٰى اٰلِ سَيِّدِنَا مُحَمَّدٍ كَمَا بَارَكْتَ عَلٰى سَيِّدِنَا اِبْرَاهِيْمَ وَعَلٰى اٰلِ سَيِّدِنَا اِبْرَاهِيْمَ فِي الْعَالَمِيْنَ اِنَّكَ حَمِيْدٌ مَجِيْدٌ',
+    arti: 'Sebagaimana Engkau telah melimpahkan rahmat dan keberkahan kepada Nabi Ibrahim beserta keluarganya. Sesungguhnya Engkau Maha Terpuji lagi Maha Mulia.',
+    catatanTajwid: 'Dibaca dengan posisi duduk tawarruk pada rakaat terakhir sebelum salam.',
+  },
+  {
+    judul: 'Niat Sholat Tarawih',
+    subJudul: 'Ibadah Ramadhan · MI Kelas 4',
+    jenjang: 'MI Kelas 4',
+    semester: 1,
+    teksArab: 'أُصَلِّيْ سُنَّةَ التَّرَاوِيْحِ رَكْعَتَيْنِ مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً مَأْمُوْمًا لِلّٰهِ تَعَالَى',
+    arti: 'Aku niat sholat sunnah Tarawih dua rakaat menghadap kiblat sebagai makmum karena Allah Ta’ala.',
+    catatanTajwid: 'Dikerjakan berjamaah atau munfarid di malam bulan Ramadhan setelah sholat Isya.',
+  },
+  {
+    judul: 'Niat Sholat Witir',
+    subJudul: 'Ibadah Malam · MI Kelas 4',
+    jenjang: 'MI Kelas 4',
+    semester: 2,
+    teksArab: 'أُصَلِّيْ سُنَّةَ الْوِتْرِ ثَلَاثَ رَكَعَاتٍ / رَكْعَةً مُسْتَقْبِلَ الْقِبْلَةِ أَدَاءً لِلّٰهِ تَعَالَى',
+    arti: 'Aku niat sholat sunnah Witir tiga rakaat / satu rakaat menghadap kiblat karena Allah Ta’ala.',
+    catatanTajwid: 'Menjadi penutup sholat malam dengan jumlah rakaat ganjil.',
+  },
+  {
+    judul: 'Doa Qunut',
+    subJudul: 'Bacaan Sholat Subuh · MI Kelas 5',
+    jenjang: 'MI Kelas 5',
+    semester: 1,
+    teksArab:
+      'اَللّٰهُمَّ اهْدِنِىْ فِيْمَنْ هَدَيْتَ وَعَافِنِىْ فِيْمَنْ عَافَيْتَ وَتَوَلَّنِىْ فِيْمَنْ تَوَلَّيْتَ وَبَارِكْ لِىْ فِيْمَا اَعْطَيْتَ وَقِنِىْ شَرَّ مَا قَضَيْتَ ۝ فَاِنَّكَ تَقْضِىْ وَلَا يُقْضٰى عَلَيْكَ وَاِنَّهٗ لَا يَذِلُّ مَنْ وَالَيْتَ تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ',
+    arti: 'Ya Allah, berilah aku petunjuk sebagaimana orang yang telah Engkau beri petunjuk, berilah kesehatan, lindungilah, dan berkahilah apa yang Engkau berikan kepadaku.',
+    catatanTajwid: 'Dibaca saat i’tidal rakaat kedua sholat Subuh dengan mengangkat kedua tangan.',
+  },
+  {
+    judul: 'Dzikir dan Doa Setelah Sholat Fardlu',
+    subJudul: 'Wirid & Doa Harian · MI Kelas 6',
+    jenjang: 'MI Kelas 6',
+    semester: 2,
+    teksArab:
+      'اَسْتَغْفِرُ اللّٰهَ الْعَظِيْمَ (٣×) ۝ اَللّٰهُمَّ اَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ ۝ سُبْحَانَ اللّٰهِ (٣٣×) اَلْحَمْدُ لِلّٰهِ (٣٣×) اَللّٰهُ اَكْبَرُ (٣٣×) ۝ رَبَّنَا اٰتِنَا فِى الدُّنْيَا حَسَنَةً وَفِى الْاٰخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+    arti: 'Aku memohon ampun kepada Allah Yang Maha Agung. Ya Allah Engkaulah sumber keselamatan. Mahasuci Allah, segala puji bagi Allah, Allah Mahabesar. Ya Tuhan kami berilah kami kebaikan di dunia dan akhirat.',
+    catatanTajwid: 'Dilanjutkan doa untuk kedua orang tua: Rabbighfir lī wa liwālidayya warḥamhumā kamā rabbayānī ṣaghīrā.',
+  },
+];
+
+export function createSeedDatabase(): AppDatabase {
+  const surahByAudioUrl = new Map<string, { teksArab: string; arti: string }>();
+  for (const item of JUZ_30_CURRICULUM) {
+    if (!item.audioPlaylist && item.audioUrl) {
+      surahByAudioUrl.set(item.audioUrl, { teksArab: item.teksArab, arti: item.arti });
+    }
+  }
+
+  const materials: MateriItem[] = [
+    ...JUZ_30_CURRICULUM.map((item, idx) => ({
+      id: `mat-juz30-${idx + 1}`,
+      kategori: 'Juz 30' as const,
+      urutan: idx + 1,
+      ...item,
+      audioPlaylist: item.audioPlaylist?.map((track) => {
+        const match = surahByAudioUrl.get(track.audioUrl);
+        return match
+          ? { ...track, teksArab: match.teksArab, arti: match.arti }
+          : track;
+      }),
+    })),
+    ...DOA_CURRICULUM.map((item, idx) => ({
+      id: `mat-doa-${idx + 1}`,
+      kategori: 'Doa Harian' as const,
+      urutan: idx + 1,
+      ...item,
+    })),
+  ];
+
+  const teachers: Teacher[] = [
+    {
+      id: 'guru-kepala',
+      nama: 'Ustadz H. Ahmad Fauzan, S.Pd.I.',
+      role: 'kepala_program',
+      loginId: 'KEPALA-ALMARUF',
+      pin: '123456',
+      jenjangAmpuan: ['RA A', 'RA B', 'MI Kelas 1', 'MI Kelas 2', 'MI Kelas 3', 'MI Kelas 4', 'MI Kelas 5', 'MI Kelas 6'],
+      semesterAktif: 1,
+      noHp: '081386292899',
+      aktif: true,
+    },
+    {
+      id: 'guru-raa',
+      nama: 'Ustadzah Siti Aminah, S.Pd.',
+      role: 'wali_kelas',
+      loginId: 'GURU-RAA',
+      pin: '123456',
+      jenjangAmpuan: ['RA A'],
+      semesterAktif: 1,
+      noHp: '085225101101',
+      aktif: true,
+    },
+    {
+      id: 'guru-rab',
+      nama: 'Ustadzah Nurul Hidayah, S.Pd.I.',
+      role: 'wali_kelas',
+      loginId: 'GURU-RAB',
+      pin: '123456',
+      jenjangAmpuan: ['RA B'],
+      semesterAktif: 1,
+      noHp: '085225101102',
+      aktif: true,
+    },
+    {
+      id: 'guru-mi1',
+      nama: 'Ustadz Muhammad Yusuf, S.Pd.',
+      role: 'wali_kelas',
+      loginId: 'GURU-MI1',
+      pin: '123456',
+      jenjangAmpuan: ['MI Kelas 1', 'MI Kelas 2'],
+      semesterAktif: 1,
+      noHp: '085225101103',
+      aktif: true,
+    },
+    {
+      id: 'guru-mi3',
+      nama: 'Ustadzah Khadijah Rahmawati, M.Pd.',
+      role: 'wali_kelas',
+      loginId: 'GURU-MI3',
+      pin: '123456',
+      jenjangAmpuan: ['MI Kelas 3', 'MI Kelas 4'],
+      semesterAktif: 1,
+      noHp: '085225101104',
+      aktif: true,
+    },
+    {
+      id: 'guru-mi5',
+      nama: 'Ustadz Abdurrahman Hakim, Lc.',
+      role: 'wali_kelas',
+      loginId: 'GURU-MI5',
+      pin: '123456',
+      jenjangAmpuan: ['MI Kelas 5', 'MI Kelas 6'],
+      semesterAktif: 1,
+      noHp: '085225101105',
+      aktif: true,
+    },
+  ];
+
+  const students: Student[] = [
+    { id: 'std-1', nis: '2601001', nama: 'Aisyah Putri Ramadhani', jenjang: 'RA A', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Hendro Wijaya', noHpOrangTua: '081234560001', loginId: 'ORTU-RAA-01', pin: '123456', waliKelasId: 'guru-raa' },
+    { id: 'std-2', nis: '2601002', nama: 'Muhammad Zidan Al-Fatih', jenjang: 'RA A', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Dewi Lestari', noHpOrangTua: '081234560002', loginId: 'ORTU-RAA-02', pin: '123456', waliKelasId: 'guru-raa' },
+    { id: 'std-3', nis: '2602001', nama: 'Fatimah Az-Zahra', jenjang: 'RA B', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Agus Santoso', noHpOrangTua: '081234560003', loginId: 'ORTU-RAB-01', pin: '123456', waliKelasId: 'guru-rab' },
+    { id: 'std-4', nis: '2602002', nama: 'Rayyan Malik Ibrahim', jenjang: 'RA B', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Rina Kusuma', noHpOrangTua: '081234560004', loginId: 'ORTU-RAB-02', pin: '123456', waliKelasId: 'guru-rab' },
+    { id: 'std-5', nis: '2611001', nama: 'Nadia Safira Khairunnisa', jenjang: 'MI Kelas 1', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Slamet Riyadi', noHpOrangTua: '081234560005', loginId: 'ORTU-MI1-01', pin: '123456', waliKelasId: 'guru-mi1' },
+    { id: 'std-6', nis: '2611002', nama: 'Ahmad Faqih Mubarok', jenjang: 'MI Kelas 1', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Siti Fatimah', noHpOrangTua: '081234560006', loginId: 'ORTU-MI1-02', pin: '123456', waliKelasId: 'guru-mi1' },
+    { id: 'std-7', nis: '2612001', nama: 'Hafizah Qonita Bilqis', jenjang: 'MI Kelas 2', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Arif Budiman', noHpOrangTua: '081234560007', loginId: 'ORTU-MI2-01', pin: '123456', waliKelasId: 'guru-mi1' },
+    { id: 'std-8', nis: '2612002', nama: 'Sulaiman Rasyid Akbar', jenjang: 'MI Kelas 2', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Wahyuni', noHpOrangTua: '081234560008', loginId: 'ORTU-MI2-02', pin: '123456', waliKelasId: 'guru-mi1' },
+    { id: 'std-9', nis: '2613001', nama: 'Zahra Nabila Syakira', jenjang: 'MI Kelas 3', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Eko Prasetyo', noHpOrangTua: '081234560009', loginId: 'ORTU-MI3-01', pin: '123456', waliKelasId: 'guru-mi3' },
+    { id: 'std-10', nis: '2613002', nama: 'Umar Al-Faruq', jenjang: 'MI Kelas 3', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Nurul Aini', noHpOrangTua: '081234560010', loginId: 'ORTU-MI3-02', pin: '123456', waliKelasId: 'guru-mi3' },
+    { id: 'std-11', nis: '2614001', nama: 'Salma Humaira Azzahra', jenjang: 'MI Kelas 4', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Bambang Sutrisno', noHpOrangTua: '081234560011', loginId: 'ORTU-MI4-01', pin: '123456', waliKelasId: 'guru-mi3' },
+    { id: 'std-12', nis: '2614002', nama: 'Yusuf Maulana Huda', jenjang: 'MI Kelas 4', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Endang Sri', noHpOrangTua: '081234560012', loginId: 'ORTU-MI4-02', pin: '123456', waliKelasId: 'guru-mi3' },
+    { id: 'std-13', nis: '2615001', nama: 'Khadijah Al-Kubra', jenjang: 'MI Kelas 5', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Mustofa Kamal', noHpOrangTua: '081234560013', loginId: 'ORTU-MI5-01', pin: '123456', waliKelasId: 'guru-mi5' },
+    { id: 'std-14', nis: '2615002', nama: 'Ibrahim Khalilullah', jenjang: 'MI Kelas 5', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Marfuah', noHpOrangTua: '081234560014', loginId: 'ORTU-MI5-02', pin: '123456', waliKelasId: 'guru-mi5' },
+    { id: 'std-15', nis: '2616001', nama: 'Maryam Salsabila', jenjang: 'MI Kelas 6', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Bpk. Subhanallah', noHpOrangTua: '081234560015', loginId: 'ORTU-MI6-01', pin: '123456', waliKelasId: 'guru-mi5' },
+    { id: 'std-16', nis: '2616002', nama: 'Bilal Al-Habsyi', jenjang: 'MI Kelas 6', semester: 1, tahunAjaran: '2026/2027', namaOrangTua: 'Ibu Halimah', noHpOrangTua: '081234560016', loginId: 'ORTU-MI6-02', pin: '123456', waliKelasId: 'guru-mi5' },
+  ];
+
+  const dailyLogs: DailyLog[] = [];
+  const weeklyEvals: WeeklyEvaluation[] = [];
+  const monthlyEvals: MonthlyEvaluation[] = [];
+
+  const sem1Days: Array<{ hari: DailyLog['hari']; tanggal: string }> = [
+    { hari: 'Senin', tanggal: '2026-11-16' },
+    { hari: 'Selasa', tanggal: '2026-11-17' },
+    { hari: 'Rabu', tanggal: '2026-11-18' },
+    { hari: 'Kamis', tanggal: '2026-11-19' },
+  ];
+
+  const sem2Days: Array<{ hari: DailyLog['hari']; tanggal: string }> = [
+    { hari: 'Senin', tanggal: '2027-02-01' },
+    { hari: 'Selasa', tanggal: '2027-02-02' },
+    { hari: 'Rabu', tanggal: '2027-02-03' },
+    { hari: 'Kamis', tanggal: '2027-02-04' },
+  ];
+
+  students.forEach((student, sIdx) => {
+    const teacher = teachers.find((t) => t.id === student.waliKelasId) || teachers[0];
+
+    // Semester 1 logs across student's Semester 1 Juz 30 & Doa materials
+    const sem1Juz = materials.filter((m) => m.jenjang === student.jenjang && m.semester === 1 && m.kategori === 'Juz 30');
+    const sem1Doa = materials.filter((m) => m.jenjang === student.jenjang && m.semester === 1 && m.kategori === 'Doa Harian');
+    const sem1Pool = [...sem1Juz, ...sem1Doa];
+
+    sem1Days.forEach((d, dIdx) => {
+      const mat = sem1Pool[dIdx % sem1Pool.length] || materials[0];
+      const baseScore = 82 + ((sIdx * 3 + dIdx * 2) % 16);
+      const status: StatusCapaian =
+        baseScore >= 88 ? 'Tuntas / Lancar' : baseScore >= 78 ? "Perlu Muraja'ah" : 'Sedang Proses';
+      dailyLogs.push({
+        id: `log-${student.id}-s1w1-${dIdx}`,
+        studentId: student.id,
+        semester: 1,
+        tahunAjaran: '2026/2027',
+        tanggal: d.tanggal,
+        hari: d.hari,
+        mingguKe: 1,
+        materiId: mat.id,
+        bagianAyat: mat.kategori === 'Juz 30' ? `Ayat 1–${3 + (dIdx % 3)}` : 'Lengkap',
+        status,
+        nilai: baseScore,
+        predikat: computePredikat(baseScore),
+        catatan:
+          status === 'Tuntas / Lancar'
+            ? 'Bacaan tartil, makhraj jelas, siap lanjut materi berikutnya.'
+            : "Lancar namun perlu pengulangan ghunnah dan panjang mad di rumah.",
+        evaluatorId: teacher.id,
+        evaluatorName: teacher.nama,
+        createdAt: `${d.tanggal}T08:30:00Z`,
+      });
+    });
+
+    // Semester 2 logs across student's Semester 2 Juz 30 & Doa materials
+    const sem2Juz = materials.filter((m) => m.jenjang === student.jenjang && m.semester === 2 && m.kategori === 'Juz 30');
+    const sem2Doa = materials.filter((m) => m.jenjang === student.jenjang && m.semester === 2 && m.kategori === 'Doa Harian');
+    const sem2Pool = [...sem2Juz, ...sem2Doa];
+
+    sem2Days.forEach((d, dIdx) => {
+      const mat = sem2Pool[dIdx % sem2Pool.length] || materials[materials.length - 1];
+      const baseScore = 84 + ((sIdx * 2 + dIdx * 3) % 14);
+      const status: StatusCapaian =
+        baseScore >= 88 ? 'Tuntas / Lancar' : baseScore >= 78 ? "Perlu Muraja'ah" : 'Sedang Proses';
+      dailyLogs.push({
+        id: `log-${student.id}-s2w1-${dIdx}`,
+        studentId: student.id,
+        semester: 2,
+        tahunAjaran: '2026/2027',
+        tanggal: d.tanggal,
+        hari: d.hari,
+        mingguKe: 1,
+        materiId: mat.id,
+        bagianAyat: mat.kategori === 'Juz 30' ? `Ayat 1–${4 + (dIdx % 3)}` : 'Lengkap',
+        status,
+        nilai: baseScore,
+        predikat: computePredikat(baseScore),
+        catatan:
+          status === 'Tuntas / Lancar'
+            ? 'Hafalan kuat, tartil baik, dan adab menyimak sangat tertib.'
+            : 'Perlu pengulangan bacaan bersama orang tua agar lebih lancar.',
+        evaluatorId: teacher.id,
+        evaluatorName: teacher.nama,
+        createdAt: `${d.tanggal}T08:30:00Z`,
+      });
+    });
+
+    const kelancaran = 84 + (sIdx % 13);
+    const tajwid = 80 + ((sIdx * 2) % 16);
+    const adab = 88 + (sIdx % 10);
+    const akhir = Math.round((kelancaran + tajwid + adab) / 3);
+    const weeklyStatus: StatusCapaian = akhir >= 85 ? 'Tuntas / Lancar' : "Perlu Muraja'ah";
+
+    const firstJuz1 = sem1Juz[0] || materials[0];
+    const firstDoa1 = sem1Doa[0] || materials[materials.length - 1];
+    const firstJuz2 = sem2Juz[0] || materials[0];
+    const firstDoa2 = sem2Doa[0] || materials[materials.length - 1];
+
+    weeklyEvals.push({
+      id: `wk-${student.id}-s1w1`,
+      studentId: student.id,
+      semester: 1,
+      tahunAjaran: '2026/2027',
+      tanggalJumat: '2026-11-20',
+      mingguKe: 1,
+      statusUmum: weeklyStatus,
+      nilaiKelancaran: kelancaran,
+      nilaiTajwid: tajwid,
+      nilaiAdab: adab,
+      nilaiAkhir: akhir,
+      targetMurajaah: `Muraja'ah ${firstJuz1.judul} & ${firstDoa1.judul}`,
+      catatanJumat:
+        weeklyStatus === 'Tuntas / Lancar'
+          ? 'Ananda menunjukkan kemajuan konsisten selama setoran Senin–Kamis.'
+          : 'Mohon pendampingan orang tua untuk menyimak audio panduan 10 menit setiap malam.',
+      evaluatorId: teacher.id,
+      evaluatorName: teacher.nama,
+      createdAt: '2026-11-20T09:00:00Z',
+    });
+
+    const akhir2 = Math.min(98, akhir + 2);
+    weeklyEvals.push({
+      id: `wk-${student.id}-s2w1`,
+      studentId: student.id,
+      semester: 2,
+      tahunAjaran: '2026/2027',
+      tanggalJumat: '2027-02-05',
+      mingguKe: 1,
+      statusUmum: akhir2 >= 85 ? 'Tuntas / Lancar' : "Perlu Muraja'ah",
+      nilaiKelancaran: Math.min(98, kelancaran + 2),
+      nilaiTajwid: Math.min(98, tajwid + 2),
+      nilaiAdab: Math.min(99, adab + 1),
+      nilaiAkhir: akhir2,
+      targetMurajaah: `Muraja'ah ${firstJuz2.judul} & ${firstDoa2.judul}`,
+      catatanJumat: 'Peningkatan kelancaran sangat baik memasuki Semester 2.',
+      evaluatorId: teacher.id,
+      evaluatorName: teacher.nama,
+      createdAt: '2027-02-05T09:00:00Z',
+    });
+
+    const sem1Months = [
+      { bulan: 'Juli', idx: 1, j30: 25, doa: 30, avg: 80 },
+      { bulan: 'Agustus', idx: 2, j30: 45, doa: 50, avg: 83 },
+      { bulan: 'September', idx: 3, j30: 68, doa: 72, avg: 86 },
+      { bulan: 'Oktober', idx: 4, j30: 84, doa: 88, avg: Math.min(97, akhir + 2) },
+    ];
+
+    sem1Months.forEach((m) => {
+      monthlyEvals.push({
+        id: `mo-${student.id}-s1-${m.idx}`,
+        studentId: student.id,
+        semester: 1,
+        tahunAjaran: '2026/2027',
+        bulan: m.bulan,
+        bulanIndex: m.idx,
+        capaianJuz30Persen: Math.min(100, m.j30 + (sIdx % 10)),
+        capaianDoaPersen: Math.min(100, m.doa + (sIdx % 8)),
+        nilaiRataRata: m.avg,
+        statusBulanan: m.avg >= 85 ? 'Tuntas / Lancar' : "Perlu Muraja'ah",
+        rekomendasi:
+          m.idx === 4
+            ? 'Siap mengikuti tasmi’ tengah semester. Pertahankan kedisiplinan muraja’ah.'
+            : 'Terus tingkatkan kelancaran makhraj dan ketepatan mad.',
+        evaluatorId: teacher.id,
+        evaluatorName: teacher.nama,
+        createdAt: '2026-11-01T08:00:00Z',
+      });
+    });
+
+    const sem2Months = [
+      { bulan: 'Januari', idx: 1, j30: 52, doa: 58, avg: 85 },
+      { bulan: 'Februari', idx: 2, j30: 74, doa: 79, avg: 88 },
+      { bulan: 'Maret', idx: 3, j30: 89, doa: 92, avg: Math.min(98, akhir + 3) },
+    ];
+
+    sem2Months.forEach((m) => {
+      monthlyEvals.push({
+        id: `mo-${student.id}-s2-${m.idx}`,
+        studentId: student.id,
+        semester: 2,
+        tahunAjaran: '2026/2027',
+        bulan: m.bulan,
+        bulanIndex: m.idx,
+        capaianJuz30Persen: Math.min(100, m.j30 + (sIdx % 9)),
+        capaianDoaPersen: Math.min(100, m.doa + (sIdx % 7)),
+        nilaiRataRata: m.avg,
+        statusBulanan: m.avg >= 85 ? 'Tuntas / Lancar' : "Perlu Muraja'ah",
+        rekomendasi:
+          m.idx === 3
+            ? 'Memenuhi target ketuntasan Semester 2 dan siap munaqosyah akhir tahun.'
+            : 'Lanjutkan muraja’ah terstruktur setiap pagi dan ba’da Maghrib.',
+        evaluatorId: teacher.id,
+        evaluatorName: teacher.nama,
+        createdAt: '2027-03-01T08:00:00Z',
+      });
+    });
+  });
+
+  return {
+    adminConfig: {
+      adminId: 'ADMIN-ALMARUF',
+      adminPassword: 'almaruf2026',
+      adminName: 'Admin Madrasah Al Ma’ruf',
+    },
+    settings: {
+      namaYayasan: 'YAYASAN MIFTAHUL HUDA AL MA’RUF',
+      aktaNotaris: 'AKTA NOTARIS NO. 52 MOCH. FARCHAN ALI IMRON TANGGAL 08 MEI 2015',
+      namaMadrasah: 'RA & MI UNGGULAN AL MA’RUF',
+      alamat:
+        'Dusun Sumberjo Rt. 004 Rw. 006 Desa Mayahan Kec. Tawangharjo Kab. Grobogan, Prov. Jawatengah, 58191',
+      kontak: 'No Telp. 081386292899. Email. Miunggulanalmarufmayahan1@gmail.com',
+      logoUrl: '/assets/aistudio/1000435209_80ac9f58.png',
+      tahunAjaranAktif: '2026/2027',
+      semesterAktif: 1,
+      namaKepalaMadrasah: 'Ustadz H. Ahmad Fauzan, S.Pd.I.',
+      kotaRapor: 'Grobogan',
+    },
+    materials,
+    teachers,
+    students,
+    dailyLogs,
+    weeklyEvals,
+    monthlyEvals,
+  };
+}
